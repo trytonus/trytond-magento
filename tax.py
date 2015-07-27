@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    tax.py
-
-    :copyright: (c) 2015 by Openlabs Technologies & Consulting (P) Limited
-    :license: BSD, see LICENSE for more details.
-"""
 from trytond.model import ModelView, ModelSQL, fields
 
 

@@ -1,13 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
-    setup
-
-    Setup
-
-    :copyright: (c) 2013-2014 by Openlabs Technologies & Consulting (P) Limited
-    :license: BSD, see LICENSE for more details.
-"""
 from setuptools import setup, Command
 import re
 import os
@@ -88,9 +79,9 @@ setup(
     name='trytond_%s' % module_name,
     version=info.get('version', '0.0.1'),
     description='Tryton Magento Integration',
-    author='Openlabs Technologies & Consulting (P) Limited',
-    author_email='info@openlabs.co.in',
-    url='https://github.com/openlabs/trytond-magento.git',
+    author='Fulfil.IO Inc.',
+    author_email='support@fulfil.io',
+    url='https://www.fulfil.io',
     package_dir={'trytond.modules.%s' % module_name: '.'},
     packages=[
         'trytond.modules.%s' % module_name,
