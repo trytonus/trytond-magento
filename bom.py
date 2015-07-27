@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    bom
-
-    BOM
-
-    :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) Limited
-    :license: BSD, see LICENSE for more details.
-"""
 from trytond.pool import Pool, PoolMeta
 
 

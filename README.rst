@@ -3,13 +3,6 @@ Tryton Magento Integration
 
 Integration of Magento e-commerce platform with Tryton ERP.
 
-.. image:: https://travis-ci.org/openlabs/trytond-magento.png?branch=develop
-  :target: https://travis-ci.org/openlabs/trytond-magento
-
-.. image:: https://coveralls.io/repos/openlabs/trytond-magento/badge.png?branch=develop
-  :target: https://coveralls.io/r/openlabs/trytond-magento
-
-
 Documentation
 -------------
 
@@ -41,9 +34,7 @@ Features of Magento Tryton connector
   by unit test cases which check the functionality with different order and
   product types and other combinations. The testing ensures that the
   connector behavior is predictable and active development does not hinder
-  the working features. You can 
-  `see it <https://travis-ci.org/openlabs/trytond-magento>`_ for yourself.
-
+  the working features. 
 
 Contributions
 -------------
@@ -87,28 +78,22 @@ README file.
 Website
 -------
 
-Visit the `Openlabs website <http://www.openlabs.co.in>`_ for latest news
-and downloads. You can also follow us on Twitter 
-`@openlabsindia <http://twitter.com/openlabsindia>`_ to receive updates on
-releases.
+Visit the `Fulfil.IO website <http://www.fulfil.io>`_ for latest news
+and downloads.
 
 Support
 -------
 
 If you have any questions or problems, please report an
-`issue <https://github.com/openlabs/trytond-magento/issues>`_.
+`issue <https://github.com/fulfilio/trytond-magento/issues>`_.
 
-You can also reach us at `support@openlabs.co.in <mailto:support@openlabs.co.in>`_
-or talk to a human at +1 813 793 6736. Please do not email any of the Openlabs
-developers directly with issues or questions as you're more likely to get an
-answer if you create a github issue or email us at the above address.
+You can also reach us at `support@fulfil.io <mailto:support@fulfil.io>`_.
 
 You can also mail us your ideas and suggestions about any changes.
 
 Professional Support
 --------------------
 
-This module is professionally supported by `Openlabs <http://www.openlabs.co.in>`_.
+This module is professionally supported by `Fulfil.IO <http://www.fulfil.io>`_.
 If you are looking for on-site teaching or consulting support, contact our
-`sales <mailto:sales@openlabs.co.in>`_ team.
-
+`sales <mailto:sales@fulfil.io>`_ team.

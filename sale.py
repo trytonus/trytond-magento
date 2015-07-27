@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    sale
-
-    Sale
-
-    :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) Limited
-    :license: BSD, see LICENSE for more details.
-"""
 import magento
 from decimal import Decimal
 import xmlrpclib

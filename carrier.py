@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    carrier
-
-    Magento Carrier
-
-    :copyright: (c) 2013 by Openlabs Technologies & Consulting (P) Limited
-    :license: BSD, see LICENSE for more details.
-"""
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
 

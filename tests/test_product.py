@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    test_product
-
-    :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) Limited
-    :license: BSD, see LICENSE for more details.
-"""
 import sys
 import os
 from decimal import Decimal

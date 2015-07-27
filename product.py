@@ -1,10 +1,4 @@
 # -*- coding: UTF-8 -*-
-'''
-    product
-
-    :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) Limited
-    :license: BSD, see LICENSE for more details.
-'''
 import magento
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.transaction import Transaction

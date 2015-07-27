@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    channel
-
-    :copyright: (c) 2015 by Openlabs Technologies & Consulting (P) Limited
-    :license: see LICENSE for more details.
-"""
 from datetime import datetime
 import magento
 import xmlrpclib
