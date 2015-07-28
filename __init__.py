@@ -24,6 +24,7 @@ from sale import (
 )
 from bom import BOM
 from tax import MagentoTax, MagentoTaxRelation
+from payment import MagentoPaymentGateway, Payment
 
 
 def register():
@@ -62,6 +63,8 @@ def register():
         MagentoTax,
         MagentoTaxRelation,
         ProductSaleChannelListing,
+        MagentoPaymentGateway,
+        Payment,
         module='magento', type_='model'
     )
     Pool.register(

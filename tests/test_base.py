@@ -80,6 +80,8 @@ class TestBase(unittest.TestCase):
         self.Property = POOL.get('ir.property')
         self.PriceList = POOL.get('product.price_list')
         self.ModelField = POOL.get('ir.model.field')
+        self.SaleConfiguration = POOL.get('sale.configuration')
+        self.Journal = POOL.get('account.journal')
 
         self.country1, = self.Country.create([{
             'name': 'United States',
@@ -224,6 +226,11 @@ class TestBase(unittest.TestCase):
             'name': 'Direct',
             'lines': [('create', [{'type': 'remainder'}])]
         }])
+
+        self.cash_journal, = self.Journal.search(
+            [('type', '=', 'cash')], limit=1
+        )
+
         self.price_list, = self.PriceList.create([{
             'name': 'PL 1',
             'company': self.company.id,
@@ -285,6 +292,11 @@ class TestBase(unittest.TestCase):
                 'magento_store_name': 'Store1',
                 'magento_store_id': 1,
             }])
+
+        sale_config = self.SaleConfiguration(1)
+        sale_config.payment_authorize_on = "manual"
+        sale_config.payment_capture_on = "manual"
+        sale_config.save()
 
         model_field, = self.ModelField.search([
             ('name', '=', 'account_revenue'),
