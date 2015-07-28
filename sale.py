@@ -196,6 +196,8 @@ class Sale:
         sale.add_lines_using_magento_data(order_data)
         sale.save()
 
+        sale.create_payment_using_magento_data(order_data['payment'])
+
         # Process sale now
         tryton_action = channel.get_tryton_action(order_data['state'])
         try:
@@ -213,6 +215,31 @@ class Sale:
             }])
 
         return sale
+
+    def create_payment_using_magento_data(self, payment_data):
+        """
+        Create sale payment using data magento sent payment data.
+        """
+        Payment = Pool().get('sale.payment')
+        MagentoPaymentGateway = Pool().get('magento.instance.payment_gateway')
+
+        magento_gateway = MagentoPaymentGateway.find_using_magento_data({
+            'name': payment_data['method']
+        })
+
+        if magento_gateway is None:
+            return
+
+        if payment_data['amount_paid']:
+            payment, = Payment.create([{
+                'sale': self.id,
+                'gateway': magento_gateway.gateway.id,
+                'magento_id': payment_data['payment_id'],
+                'amount': Decimal(payment_data['amount_paid']),
+                'credit_account': self.party.account_receivable.id,
+            }])
+            self.capture_payments(Decimal(payment_data['amount_paid']))
+            self.process_pending_payments()
 
     def add_lines_using_magento_data(self, order_data):
         """
