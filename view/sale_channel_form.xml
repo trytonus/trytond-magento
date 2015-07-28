@@ -41,6 +41,9 @@
                 <button string="Import Magento Carriers" name="import_magento_carriers"/>
             </group>
         </page>
+        <page string="Payment Gateways" id="payments" states="{'invisible': Not(Eval('source') == 'magento')}">
+            <field name="magento_payment_gateways" colspan="4"/>
+        </page>
         <page string="Price Tiers" id="price_tiers" states="{'invisible': Not(Eval('source') == 'magento')}">
             <field name="magento_price_tiers" colspan="8"/>
         </page>

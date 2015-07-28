@@ -1248,6 +1248,125 @@ class TestSale(TestBase):
                 self.assertEqual(len(new_sales), 1)
                 self.assertIsNone(new_sales[0].magento_id)
 
+    def test_0130_import_sale_order_with_payment_info(self):
+        """
+        Tests import of sale order with payment info
+        """
+        Sale = POOL.get('sale.sale')
+        Category = POOL.get('product.category')
+        PaymentGateway = POOL.get('payment_gateway.gateway')
+        MagentoPaymentGateway = POOL.get('magento.instance.payment_gateway')
+
+        def create_gateways():
+            cash_gateway, = PaymentGateway.create([{
+                'name': 'Manual Gateway',
+                'journal': self.cash_journal.id,
+                'provider': 'self',
+                'method': 'manual',
+            }])
+
+            magento_gateway, = MagentoPaymentGateway.create([{
+                'name': 'checkmo',
+                'title': 'checkmo',
+                'gateway': cash_gateway.id,
+                'channel': self.channel1.id,
+            }])
+
+        # CASE 1: When payment is not complete on magento, we dont import
+        # them in tryton
+        with Transaction().start(DB_NAME, USER, CONTEXT):
+            self.setup_defaults()
+
+            create_gateways()
+
+            with Transaction().set_context({
+                'current_channel': self.channel1.id,
+            }):
+
+                order_states_list = load_json('order-states', 'all')
+                for code, name in order_states_list.iteritems():
+                    self.channel1.create_order_state(code, name)
+
+                category_tree = load_json('categories', 'category_tree')
+                Category.create_tree_using_magento_data(category_tree)
+
+                orders = Sale.search([])
+                self.assertEqual(len(orders), 0)
+
+                order_data = load_json('orders', '300000001')
+
+                with patch(
+                        'magento.Customer', mock_customer_api(), create=True):
+                    self.Party.find_or_create_using_magento_id(
+                        order_data['customer_id']
+                    )
+
+                with Transaction().set_context(company=self.company):
+                    # Create sale order using magento data
+                    with patch(
+                        'magento.Product', mock_product_api(), create=True
+                    ):
+                        order = Sale.find_or_create_using_magento_data(
+                            order_data
+                        )
+
+                self.assertEqual(order.state, 'confirmed')
+
+                orders = Sale.search([])
+                self.assertEqual(len(orders), 1)
+                self.assertEqual(len(order.lines), 2)
+
+                self.assertEqual(len(order.payments), 0)
+
+        # CASE 2: When payment is completed on magento, we import
+        # payment in  tryton and complete it here.
+        with Transaction().start(DB_NAME, USER, CONTEXT):
+            self.setup_defaults()
+
+            create_gateways()
+
+            with Transaction().set_context({
+                'current_channel': self.channel1.id,
+            }):
+
+                order_states_list = load_json('order-states', 'all')
+                for code, name in order_states_list.iteritems():
+                    self.channel1.create_order_state(code, name)
+
+                category_tree = load_json('categories', 'category_tree')
+                Category.create_tree_using_magento_data(category_tree)
+
+                orders = Sale.search([])
+                self.assertEqual(len(orders), 0)
+
+                order_data = load_json('orders', '300000001-completed-payment')
+
+                with patch(
+                        'magento.Customer', mock_customer_api(), create=True):
+                    self.Party.find_or_create_using_magento_id(
+                        order_data['customer_id']
+                    )
+
+                with Transaction().set_context(company=self.company):
+                    # Create sale order using magento data
+                    with patch(
+                        'magento.Product', mock_product_api(), create=True
+                    ):
+                        order = Sale.find_or_create_using_magento_data(
+                            order_data
+                        )
+
+                self.assertEqual(order.state, 'confirmed')
+
+                orders = Sale.search([])
+                self.assertEqual(len(orders), 1)
+                self.assertEqual(len(order.lines), 2)
+
+                payment, = order.payments
+                self.assertEqual(payment.amount, order.total_amount)
+                self.assertEqual(payment.amount_available, Decimal('0'))
+                self.assertEqual(len(payment.payment_transactions), 1)
+
 
 def suite():
     """

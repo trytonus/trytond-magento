@@ -94,6 +94,9 @@ class Channel:
     product_listings = fields.One2Many(
         'product.product.channel_listing', 'channel', 'Product Listings',
     )
+    magento_payment_gateways = fields.One2Many(
+        'magento.instance.payment_gateway', 'channel', 'Payments',
+    )
 
     @classmethod
     def __setup__(cls):
