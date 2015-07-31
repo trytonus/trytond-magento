@@ -275,7 +275,7 @@ class Channel:
                 for magento_product in magento_products:
                     products.append(self.import_product(magento_product['sku']))
 
-        return map(int, products)
+        return products
 
     def import_product(self, sku):
         """
