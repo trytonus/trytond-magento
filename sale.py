@@ -396,6 +396,19 @@ class Sale:
 
         return sales and sales[0] or None
 
+    def get_carrier_data_from_order_data(self, order_data):
+        """
+        Create carrier data dict from sale order_data. This method can be
+        implemented by downstream modules, if shipping identifier is different
+        from standard magento.
+        """
+        carrier_data = {}
+        # Fetch carrier code from shipping_method (Standard magento only)
+        # ex: shipping_method : flaterate_flaterate
+        #     carrier_code    : flaterate
+        carrier_data['code'], _ = order_data['shipping_method'].split('_', 1)
+        return carrier_data
+
     def get_shipping_line_data_using_magento_data(self, order_data):
         """
         Returns an unsaved shipping line active record for the given sale
@@ -407,13 +420,8 @@ class Sale:
         MagentoCarrier = Pool().get('magento.instance.carrier')
         SaleLine = Pool().get('sale.line')
 
-        carrier_data = {}
         unit, = Uom.search([('name', '=', 'Unit')])
-
-        # Fetch carrier code from shipping_method
-        # ex: shipping_method : flaterate_flaterate
-        #     carrier_code    : flaterate
-        carrier_data['code'], _ = order_data['shipping_method'].split('_', 1)
+        carrier_data = self.get_carrier_data_from_order_data(order_data)
 
         magento_carrier = MagentoCarrier.find_using_magento_data(carrier_data)
 
