@@ -426,6 +426,8 @@ class Sale:
         magento_carrier = MagentoCarrier.find_using_magento_data(carrier_data)
 
         if magento_carrier and magento_carrier.carrier:
+            # Save shipping carrier in sale
+            self.carrier = magento_carrier.carrier
             product = magento_carrier.carrier.carrier_product
         else:
             product = None
