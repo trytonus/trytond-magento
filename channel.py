@@ -498,7 +498,7 @@ class Channel:
                     # Some checks to make sure that only valid shipments are
                     # being exported
                     if shipment.is_tracking_exported_to_magento or \
-                            shipment.state not in ('packed', 'done') or \
+                            shipment.state != 'done' or \
                             shipment.magento_increment_id:
                         continue
                     updated_sales.add(sale)
