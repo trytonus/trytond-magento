@@ -54,7 +54,7 @@ requires = [
     'magento',
 ]
 MODULE2PREFIX = {
-    'sale_channel': 'openlabs',
+    'sale_channel': 'fio',
     'product_variant': 'openlabs',
     'sale_payment_gateway': 'openlabs',
 }
