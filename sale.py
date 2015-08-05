@@ -579,15 +579,16 @@ class StockShipmentOut:
         assert self.tracking_number
         assert self.carrier
 
-        carriers = MagentoCarrier.search([
-            ('channel', '=', channel.id),
-            ('carrier', '=', self.carrier.id)
-        ])
-
-        if not carriers:
-            # The carrier linked to this shipment is not found mapped to a
-            # magento carrier.
-            return
+        try:
+            carrier, = MagentoCarrier.search([
+                ('channel', '=', channel.id),
+                ('carrier', '=', self.carrier.id)
+            ])
+        except ValueError:
+            # No mapping carrier found use custom
+            code, title = 'custom', self.carrier.rec_name
+        else:
+            code, title = carrier.code, carrier.title
 
         # Add tracking info to the shipment on magento
         with magento.Shipment(
@@ -595,10 +596,7 @@ class StockShipmentOut:
             channel.magento_api_key
         ) as shipment_api:
             shipment_increment_id = shipment_api.addtrack(
-                self.magento_increment_id,
-                carriers[0].code,
-                carriers[0].title,
-                self.tracking_number,
+                self.magento_increment_id, code, title, self.tracking_number
             )
 
             Shipment.write([self], {
