@@ -655,7 +655,7 @@ class Channel:
 
         return len(product_listings)
 
-    def get_tryton_action(self, name):
+    def get_default_tryton_action(self, name):
         """
         Returns tryton order state for magento state
 
