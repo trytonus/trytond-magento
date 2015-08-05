@@ -486,6 +486,7 @@ class Channel:
         self.last_shipment_export_time = datetime.utcnow()
         self.save()
 
+        updated_sales = set([])
         for sale in sales:
             # Get the increment id from the sale reference
             increment_id = sale.reference[
@@ -499,8 +500,8 @@ class Channel:
                     if shipment.is_tracking_exported_to_magento or \
                             shipment.state not in ('packed', 'done') or \
                             shipment.magento_increment_id:
-                        sales.pop(sale)
                         continue
+                    updated_sales.add(sale)
                     with magento.Shipment(
                         self.magento_url, self.magento_api_user,
                         self.magento_api_key
@@ -540,7 +541,7 @@ class Channel:
                         # Hence, just continue
                         continue
 
-        return sales
+        return updated_sales
 
     @classmethod
     def export_inventory_to_magento_using_cron(cls):
