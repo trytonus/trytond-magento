@@ -99,6 +99,16 @@ class TestSale(TestBase):
     """
     Tests import of sale order
     """
+    def import_order_states(self, channel):
+        """
+        Import Order States
+        """
+        with Transaction().set_context({
+            'current_channel': channel.id
+        }):
+            order_states_list = load_json('order-states', 'all')
+            for code, name in order_states_list.iteritems():
+                channel.create_order_state(code, name)
 
     def test_0005_import_sale_order_states(self):
         """
@@ -140,7 +150,7 @@ class TestSale(TestBase):
             self.setup_defaults()
 
             self.assertEqual(
-                self.channel1.get_tryton_action('new'),
+                self.channel1.get_default_tryton_action('new'),
                 {
                      'action': 'process_manually',
                      'invoice_method': 'order',
@@ -149,7 +159,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_tryton_action('holded'),
+                self.channel1.get_default_tryton_action('holded'),
                 {
                      'action': 'process_manually',
                      'invoice_method': 'order',
@@ -158,7 +168,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_tryton_action('pending_payment'),
+                self.channel1.get_default_tryton_action('pending_payment'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -167,7 +177,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_tryton_action('payment_review'),
+                self.channel1.get_default_tryton_action('payment_review'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -176,7 +186,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_tryton_action('closed'),
+                self.channel1.get_default_tryton_action('closed'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -185,7 +195,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_tryton_action('complete'),
+                self.channel1.get_default_tryton_action('complete'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -194,7 +204,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_tryton_action('processing'),
+                self.channel1.get_default_tryton_action('processing'),
                 {
                     'action': 'process_automatically',
                     'invoice_method': 'order',
@@ -203,7 +213,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_tryton_action('cancelled'),
+                self.channel1.get_default_tryton_action('cancelled'),
                 {
                     'action': 'do_not_import',
                     'invoice_method': 'manual',
@@ -246,6 +256,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -295,6 +306,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -343,6 +355,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -392,6 +405,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -440,6 +454,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
             }):
@@ -489,6 +504,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -537,6 +553,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -694,6 +711,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -960,6 +978,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -1043,6 +1062,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -1109,6 +1129,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
 
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
@@ -1202,6 +1223,7 @@ class TestSale(TestBase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
+            self.import_order_states(self.channel1)
             with Transaction().set_context({
                 'current_channel': self.channel1.id,
             }):
