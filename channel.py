@@ -333,19 +333,12 @@ class Channel:
         if self.source != 'magento':
             return super(Channel, self).import_orders()
 
-        OrderState = Pool().get('sale.channel.order_state')
-
         new_sales = []
         with Transaction().set_context({'current_channel': self.id}):
-            order_states = OrderState.search([
-                ('channel', '=', self.id),
-            ])
+            order_states = self.get_order_states_to_import()
             order_states_to_import_in = map(
                 lambda state: state.code, order_states
             )
-
-            if not order_states_to_import_in:
-                self.raise_user_error("states_not_found")
 
             with magento.Order(
                 self.magento_url, self.magento_api_user, self.magento_api_key
