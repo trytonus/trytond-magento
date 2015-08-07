@@ -102,7 +102,7 @@ class Party:
         :param magento_data: Dictionary of values for customer sent by magento
         :return: Active record of record created
         """
-        party, = cls.create([{
+        values = {
             'name': u' '.join(
                 [magento_data['firstname'], magento_data['lastname']]
             ),
@@ -112,13 +112,15 @@ class Party:
                     'channel': Transaction().context['current_channel'],
                 }])
             ],
-            'contact_mechanisms': [
+        }
+        if magento_data.get('email'):
+            values.update({'contact_mechanisms': [
                 ('create', [{
                     'type': 'email',
                     'value': magento_data['email'],
                 }])
-            ]
-        }])
+            ]})
+        party, = cls.create([values])
 
         return party
 
