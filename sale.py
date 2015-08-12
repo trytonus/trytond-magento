@@ -588,7 +588,7 @@ class StockShipmentOut:
             # No mapping carrier found use custom
             code, title = 'custom', self.carrier.rec_name
         else:
-            code, title = carrier.code, carrier.title
+            code, title = carrier.get_magento_mapping()
 
         # Add tracking info to the shipment on magento
         with magento.Shipment(
