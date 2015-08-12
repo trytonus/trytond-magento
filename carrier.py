@@ -39,6 +39,16 @@ class MagentoInstanceCarrier(ModelSQL, ModelView):
             )
         ]
 
+    def get_magento_mapping(self):
+        """
+        Return code and title for magento
+
+        Downstream modules can override this behaviour
+
+        Return: (`code`, `title`)
+        """
+        return self.code, self.title
+
     @classmethod
     def create_all_using_magento_data(cls, magento_data):
         """
