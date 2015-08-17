@@ -209,7 +209,7 @@ class Address:
 
         # Check if the name matches
         if self.name != ' '.join(
-            [address_data['firstname'], address_data['lastname']]
+            filter(None, [address_data['firstname'], address_data['lastname']])
         ):
             return False
 
