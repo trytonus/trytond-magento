@@ -103,9 +103,9 @@ class Party:
         :return: Active record of record created
         """
         values = {
-            'name': u' '.join(
-                [magento_data['firstname'], magento_data['lastname']]
-            ),
+            'name': u' '.join(filter(
+                None, [magento_data['firstname'], magento_data['lastname']]
+            )),
             'magento_ids': [
                 ('create', [{
                     'magento_id': magento_data['customer_id'],
@@ -284,9 +284,9 @@ class Address:
 
         address, = cls.create([{
             'party': party.id,
-            'name': ' '.join([
-                address_data['firstname'], address_data['lastname']
-            ]),
+            'name': ' '.join([filter(
+                None, [address_data['firstname'], address_data['lastname']]
+            )]),
             'street': address_data['street'],
             'zip': address_data['postcode'],
             'city': address_data['city'],
