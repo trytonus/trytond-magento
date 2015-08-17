@@ -261,6 +261,12 @@ class TestParty(TestBase):
                 address.match_with_magento_data(load_json('addresses', '1a'))
             )
 
+            # Exactly similar address for firstname and lastname are
+            # combine in firstname and lastname is None
+            self.assertTrue(
+                address.match_with_magento_data(load_json('addresses', '1f'))
+            )
+
             # Similar with different country. This will raise user error because
             # India doesn't have that state American Samoa.
             self.assertFalse(
