@@ -284,9 +284,9 @@ class Address:
 
         address, = cls.create([{
             'party': party.id,
-            'name': ' '.join([filter(
+            'name': ' '.join(filter(
                 None, [address_data['firstname'], address_data['lastname']]
-            )]),
+            )),
             'street': address_data['street'],
             'zip': address_data['postcode'],
             'city': address_data['city'],
