@@ -524,7 +524,9 @@ class Channel:
                             hasattr(shipment, 'carrier') and
                             shipment.tracking_number and shipment.carrier
                         ):
-                            shipment.export_tracking_info_to_magento()
+                            with Transaction().set_context(
+                                    current_channel=self.id):
+                                shipment.export_tracking_info_to_magento()
                 except xmlrpclib.Fault, fault:
                     if fault.faultCode == 102:
                         # A shipment already exists for this order,
