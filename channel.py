@@ -571,17 +571,24 @@ class Channel:
                     'is_in_stock': '1' if listing.product.quantity > 0
                         else '0',
                 }
-
                 # Update stock information to magento
-                with magento.Inventory(
-                    self.magento_url, self.magento_api_user,
-                    self.magento_api_key
-                ) as inventory_api:
-                    inventory_api.update(
-                        listing.product_identifier, product_data
-                    )
+                self._push_inventory_to_magento(
+                    listing.product_identifier, product_data
+                )
 
         return products
+
+    def _push_inventory_to_magento(self, product_identifier, product_data):
+        """
+        This method separate out network intrinsic task of pushing inventory to
+        magento
+        """
+        with magento.Inventory(
+            self.magento_url, self.magento_api_user, self.magento_api_key
+        ) as inventory_api:
+            inventory_api.update(
+                product_identifier, product_data
+            )
 
     def export_product_prices(self):
         """
