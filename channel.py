@@ -555,13 +555,18 @@ class Channel:
         :return: List of product templates
         """
         Location = Pool().get('stock.location')
+        ChannelListing = Pool().get('product.product.channel_listing')
 
         self.validate_magento_channel()
 
         products = []
         locations = Location.search([('type', '=', 'storage')])
+        channel_listings = ChannelListing.search([
+            ('channel', '=', self),
+            ('state', '=', 'active'),
+        ])
 
-        for listing in self.product_listings:
+        for listing in channel_listings:
             product = listing.product
             products.append(product)
 
