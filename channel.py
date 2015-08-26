@@ -578,12 +578,12 @@ class Channel:
                 }
                 # Update stock information to magento
                 self._push_inventory_to_magento(
-                    listing.product_identifier, product_data
+                    listing, product_data
                 )
 
         return products
 
-    def _push_inventory_to_magento(self, product_identifier, product_data):
+    def _push_inventory_to_magento(self, listing, product_data):
         """
         This method separate out network intrinsic task of pushing inventory to
         magento
@@ -591,9 +591,18 @@ class Channel:
         with magento.Inventory(
             self.magento_url, self.magento_api_user, self.magento_api_key
         ) as inventory_api:
-            inventory_api.update(
-                product_identifier, product_data
-            )
+            try:
+                inventory_api.update(
+                    listing.product_identifier, product_data
+                )
+            except xmlrpclib.Fault, e:
+                if e.faultCode == 101:
+                    # Product does not exists
+                    listing.state = 'disabled'
+                    listing.save()
+                    # TODO: Notify human
+                else:
+                    raise
 
     def export_product_prices(self):
         """
