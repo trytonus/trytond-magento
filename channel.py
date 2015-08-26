@@ -555,28 +555,38 @@ class Channel:
         :return: List of product templates
         """
         Location = Pool().get('stock.location')
+        Product = Pool().get('product.product')
         ChannelListing = Pool().get('product.product.channel_listing')
 
         self.validate_magento_channel()
 
-        products = []
-        locations = Location.search([('type', '=', 'storage')])
-        channel_listings = ChannelListing.search([
-            ('channel', '=', self),
-            ('state', '=', 'active'),
+        # Fetch all the products to be pushed in one giant search to
+        # take advantage of the ORM cache. This will speed up inventory
+        # computation by having the information cached for all records
+        # instead of computing levels one by one.
+        products = Product.search([
+            ('channel_listings.channel', '=', self),
+            ('channel_listings.state', '=', 'active')
         ])
+        locations = map(int, Location.search([('type', '=', 'storage')]))
 
-        for listing in channel_listings:
-            product = listing.product
-            products.append(product)
-
-            with Transaction().set_context({'locations': map(int, locations)}):
+        for product in products:
+            with Transaction().set_context(locations=locations):
                 product_data = {
                     'qty': product.quantity,
-                    'is_in_stock': '1' if listing.product.quantity > 0
-                        else '0',
+                    'is_in_stock': '1' if product.quantity > 0 else '0',
                 }
+
+                # Find the listing for the product
+                listing, = ChannelListing.search([
+                    ('product', '=', product),
+                    ('channel', '=', self),
+                ], limit=1)
+
                 # Update stock information to magento
+                # TODO: Figure out a way to do a bulk update and see the
+                # result. At the moment this sucks because each update
+                # takes forever on the slow magento API
                 self._push_inventory_to_magento(
                     listing, product_data
                 )
