@@ -243,12 +243,12 @@ class Product:
         :param product_data: Product Data From Magento
         :returns: Browse record of product found/created
         """
-        product_template = cls.find_using_magento_data(product_data)
+        product = cls.find_using_magento_data(product_data)
 
-        if not product_template:
-            product_template = cls.create_using_magento_data(product_data)
+        if not product:
+            product = cls.create_using_magento_data(product_data)
 
-        return product_template
+        return product
 
     @classmethod
     def find_using_magento_data(cls, product_data):
