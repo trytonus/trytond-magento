@@ -67,12 +67,12 @@ class BOM:
 
         for item_id, data in identified_boms.iteritems():
             bundle_product = \
-                channel.import_product(data['bundle']['sku'])
+                channel.get_product(data['bundle']['sku'])
 
             # It contains a list of tuples, in which the first element is the
             # product's active record and second is its quantity in the BoM
             child_products = [(
-                channel.import_product(
+                channel.get_product(
                     each['sku']
                 ), (
                     float(each['qty_ordered']) /
