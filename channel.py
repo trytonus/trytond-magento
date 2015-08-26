@@ -127,9 +127,6 @@ class Channel:
                 'invisible': Eval('source') != 'magento'
             }
         })
-        cls._error_messages.update({
-            "missing_magento_channel": 'Magento channel is not in context',
-        })
 
     def validate_magento_channel(self):
         """
@@ -242,10 +239,7 @@ class Channel:
     def get_current_magento_channel(cls):
         """Helper method to get the current magento_channel.
         """
-        channel_id = Transaction().context.get('current_channel')
-        if not channel_id:
-            cls.raise_user_error('missing_magento_channel')
-        channel = cls(channel_id)
+        channel = cls.get_current_channel()
 
         # Make sure channel belongs to magento
         channel.validate_magento_channel()
