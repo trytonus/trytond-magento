@@ -278,6 +278,21 @@ class Sale:
                 self.get_discount_line_data_using_magento_data(order_data)
             )
 
+    def find_or_create_product(self, sku):
+        """
+        Given a SKU find the product or if it aint there create it and then
+        return the active record of the product. This cannot be done async
+        under any circumstances, because a product created on another
+        transaction will not be visible to the current transaction unless the
+        transaction is started over.
+
+        :param sku: SKU
+        """
+        Channel = Pool().get('sale.channel')
+
+        channel = Channel.get_current_channel()
+        return channel.import_product(sku)
+
     def get_sale_line_using_magento_data(self, item):
         """
         Get sale.line data from magento data.
@@ -294,7 +309,7 @@ class Sale:
         if not item['parent_item_id']:
             # If its a top level product, create it
             try:
-                product = channel.import_product(item['sku'])
+                product = self.find_or_create_product(item['sku'])
             except xmlrpclib.Fault, exception:
                 if exception.faultCode == 101:
                     # Case when product doesnot exist on magento
