@@ -508,9 +508,15 @@ class UpdateMagentoCatalog(Wizard):
         :param channel: Browse record of channel
         :return: List of product IDs
         """
+        ChannelListing = Pool().get('product.product.channel_listing')
+
         products = []
+        channel_listings = ChannelListing.search([
+            ('channel', '=', self),
+            ('state', '=', 'active'),
+        ])
         with Transaction().set_context({'current_channel': channel.id}):
-            for listing in channel.product_listings:
+            for listing in channel_listings:
                 products.append(
                     listing.product.update_from_magento()
                 )
