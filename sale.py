@@ -294,7 +294,7 @@ class Sale:
         if not item['parent_item_id']:
             # If its a top level product, create it
             try:
-                product = channel.import_product(item['sku'])
+                product = channel.get_product(item['sku'])
             except xmlrpclib.Fault, exception:
                 if exception.faultCode == 101:
                     # Case when product doesnot exist on magento
