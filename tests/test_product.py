@@ -134,13 +134,6 @@ class TestProduct(TestBase):
                 products_after_import = Product.search([], count=True)
                 self.assertTrue(products_after_import > products_before_import)
 
-                self.assertEqual(
-                    product,
-                    Product.find_using_magento_data(
-                        product_data
-                    )
-                )
-
                 # Make sure the categs are created only in channel1 and not
                 # not in channel2
                 self.assertTrue(ProductSaleChannelListing.search(

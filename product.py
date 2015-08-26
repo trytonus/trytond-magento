@@ -199,6 +199,36 @@ class ProductSaleChannelListing:
         ('downloadable', 'Downloadable'),
     ], 'Magento Product Type', readonly=True)
 
+    @classmethod
+    def create_from(cls, channel, product_data):
+        """
+        Create a listing for the product from channel and data
+        """
+        Product = Pool().get('product.product')
+
+        if channel.source != 'magento':
+            return super(ProductSaleChannelListing, cls).create_from(
+                channel, product_data
+            )
+
+        try:
+            product, = Product.search([
+                ('code', '=', product_data['sku']),
+            ])
+        except ValueError:
+            cls.raise_user_error("No product found for mapping")
+
+        listing = cls(
+            channel=channel,
+            product=product,
+            # Do not match with SKU. Magento fucks up when there are
+            # numeric SKUs
+            product_identifier=product_data['product_id'],
+            magento_product_type=product_data['type'],
+        )
+        listing.save()
+        return listing
+
 
 class Product:
     "Product"
@@ -220,19 +250,6 @@ class Product:
         })
 
     @classmethod
-    def find_using_magento_sku(cls, magento_sku):
-        """
-        Find a product template corresponding to the magento ID provided. If
-        found return that else None
-
-        :param magento_sku: Product SKU from Magento
-        :returns: Product created for the Record
-        """
-        products = cls.search([('code', '=', magento_sku)])
-
-        return products and products[0] or None
-
-    @classmethod
     def find_or_create_using_magento_data(cls, product_data):
         """
         Find or create a product template using magento data provided.
@@ -243,23 +260,29 @@ class Product:
         :param product_data: Product Data From Magento
         :returns: Browse record of product found/created
         """
-        product = cls.find_using_magento_data(product_data)
+        Product = Pool().get('product.product')
+        Listing = Pool().get('product.product.channel_listing')
+        Channel = Pool().get('sale.channel')
 
-        if not product:
-            product = cls.create_using_magento_data(product_data)
+        channel = Channel.get_current_magento_channel()
+
+        products = Product.search([
+            ('code', '=', product_data['sku']),
+        ])
+        listings = Listing.search([
+            ('product.code', '=', product_data['sku']),
+            ('channel', '=', channel)
+        ])
+
+        if not products:
+            product = Product.create_from(channel, product_data)
+        else:
+            product, = products
+
+        if not listings:
+            Listing.create_from(channel, product_data)
 
         return product
-
-    @classmethod
-    def find_using_magento_data(cls, product_data):
-        """
-        Find a product template corresponding to the magento data provided.
-        If found return that else None
-
-        :param product_data: Category Data from Magento
-        :returns: Active record of product found or None
-        """
-        return cls.find_using_magento_sku(product_data['sku'])
 
     @classmethod
     def extract_product_values_from_data(cls, product_data):
@@ -283,6 +306,15 @@ class Product:
         }
 
     @classmethod
+    def create_from(cls, channel, product_data):
+        """
+        Create the product for the channel
+        """
+        if channel.source != 'magento':
+            return super(Product, cls).create_from(channel, product_data)
+        return cls.create_using_magento_data(product_data)
+
+    @classmethod
     def create_using_magento_data(cls, product_data):
         """
         Create a new product with the `product_data` from magento.This method
@@ -293,11 +325,10 @@ class Product:
         :param product_data: Product Data from Magento
         :returns: Browse record of product created
         """
+        # TODO: Remove this method completely and stick to the channel API
+        # The method above (create_from) should be used instead.
         Template = Pool().get('product.template')
         Category = Pool().get('product.category')
-        Channel = Pool().get('sale.channel')
-
-        channel = Channel.get_current_magento_channel()
 
         # Get only the first category from the list of categories
         # If no category is found, put product under unclassified category
@@ -325,16 +356,10 @@ class Product:
                     0.00
                 ),
                 'cost_price': Decimal(product_data.get('cost') or 0.00),
-                'channel_listings': [('create', [{
-                    'product_identifier': product_data['product_id'],
-                    'channel': channel.id,
-                    'magento_product_type': product_data['type'],
-                }])],
             }])],
             'category': category.id,
         })
         product_template, = Template.create([product_template_values])
-
         return product_template.products[0]
 
     def update_from_magento(self):

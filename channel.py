@@ -278,22 +278,39 @@ class Channel:
         Downstream implementation for channel.import_product
         """
         Product = Pool().get('product.product')
+        Listing = Pool().get('product.product.channel_listing')
 
         if self.source != 'magento':
             return super(Channel, self).import_product(sku)
 
-        product = Product.find_using_magento_sku(sku)
+        products = Product.search([
+            ('code', '=', sku),
+        ])
+        listings = Listing.search([
+            ('product.code', '=', sku),
+            ('channel', '=', self)
+        ])
 
-        if not product:
-            # if product is not found get the info from magento and
-            # delegate to create_using_magento_data
+        if not products or not listings:
+            # Either way we need the product data from magento. Make that
+            # dreaded API call.
             with magento.Product(
                 self.magento_url, self.magento_api_user,
                 self.magento_api_key
             ) as product_api:
                 product_data = product_api.info(sku)
 
-            product = Product.create_using_magento_data(product_data)
+            # Create a product since there is no match for an existing
+            # product with the SKU.
+            if not products:
+                product = Product.create_from(self, product_data)
+            else:
+                product, = products
+
+            if not listings:
+                Listing.create_from(self, product_data)
+        else:
+            product = products[0]
 
         return product
 
