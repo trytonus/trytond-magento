@@ -155,10 +155,10 @@ class ExportMagentoInventory(Wizard):
         """
         Handles the transition
         """
-
         Channel = Pool().get('sale.channel')
 
-        channel = Channel.get_current_magento_channel()
+        channel = Channel(Transaction().context.get('active_id'))
+        channel.validate_magento_channel()
 
         product_templates = channel.export_inventory_to_magento()
 
