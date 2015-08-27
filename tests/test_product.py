@@ -388,7 +388,7 @@ class TestProduct(TestBase):
                 with patch(
                     'magento.Inventory', mock_inventory_api(), create=True
                 ):
-                    self.channel1.export_inventory_to_magento()
+                    self.channel1.export_inventory()
 
     def test_0090_tier_prices(self):
         """Checks the function field on product price tiers

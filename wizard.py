@@ -160,7 +160,7 @@ class ExportMagentoInventory(Wizard):
         channel = Channel(Transaction().context.get('active_id'))
         channel.validate_magento_channel()
 
-        product_templates = channel.export_inventory_to_magento()
+        product_templates = channel.export_inventory()
 
         action['pyson_domain'] = PYSONEncoder().encode(
             [('id', 'in', map(int, product_templates))])
