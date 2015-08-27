@@ -12,7 +12,6 @@ from trytond.wizard import (
 )
 
 __all__ = [
-    'ExportMagentoInventoryStart', 'ExportMagentoInventory',
     'ExportMagentoShipmentStatusStart',
     'ExportMagentoShipmentStatus', 'ImportMagentoCarriersStart',
     'ImportMagentoCarriers', 'ConfigureMagento',
@@ -125,49 +124,6 @@ class ImportMagentoCarriers(Wizard):
                 "match the shipment carriers in Tryton to allow seamless " +
                 "synchronisation of tracking information."
         }
-
-
-class ExportMagentoInventoryStart(ModelView):
-    "Export Inventory Start View"
-    __name__ = 'magento.wizard_export_inventory.start'
-
-
-class ExportMagentoInventory(Wizard):
-    """
-    Export Inventory Wizard
-
-    Export product stock information to magento for the current website
-    """
-    __name__ = 'magento.wizard_export_inventory'
-
-    start = StateView(
-        'magento.wizard_export_inventory.start',
-        'magento.wizard_export_magento_inventory_view_start_form',
-        [
-            Button('Cancel', 'end', 'tryton-cancel'),
-            Button('Continue', 'export_', 'tryton-ok', default=True),
-        ]
-    )
-
-    export_ = StateAction('product.act_template_form')
-
-    def do_export_(self, action):
-        """
-        Handles the transition
-        """
-        Channel = Pool().get('sale.channel')
-
-        channel = Channel(Transaction().context.get('active_id'))
-        channel.validate_magento_channel()
-
-        product_templates = channel.export_inventory()
-
-        action['pyson_domain'] = PYSONEncoder().encode(
-            [('id', 'in', map(int, product_templates))])
-        return action, {}
-
-    def transition_export_(self):
-        return 'end'
 
 
 class ExportMagentoShipmentStatusStart(ModelView):
