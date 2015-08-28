@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 import magento
+import xmlrpclib
+
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.transaction import Transaction
 from trytond.pool import PoolMeta, Pool
@@ -228,6 +230,42 @@ class ProductSaleChannelListing:
         )
         listing.save()
         return listing
+
+    def export_inventory(self):
+        """
+        Export inventory of this listing
+        """
+        if self.channel.source != 'magento':
+            super(ProductSaleChannelListing, self).export_inventory()
+
+        channel, product = self.channel, self.product
+
+        with Transaction().set_context(locations=[channel.warehouse.id]):
+            product_data = {
+                'qty': product.quantity,
+                'is_in_stock': '1' if product.quantity > 0 else '0',
+            }
+
+        # Update stock information to magento
+        # TODO: Figure out a way to do a bulk update and see the
+        # result. At the moment this sucks because each update
+        # takes forever on the slow magento API
+        with magento.Inventory(
+            channel.magento_url, channel.magento_api_user,
+            channel.magento_api_key
+        ) as inventory_api:
+            try:
+                inventory_api.update(
+                    self.product_identifier, product_data
+                )
+            except xmlrpclib.Fault, e:
+                if e.faultCode == 101:
+                    # Product does not exists
+                    self.state = 'disabled'
+                    self.save()
+                    # TODO: Notify human
+                else:
+                    raise
 
 
 class Product:
