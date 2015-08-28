@@ -2,7 +2,6 @@
 from trytond.pool import Pool
 from wizard import (
     TestMagentoConnectionStart, ImportWebsitesStart,
-    ExportMagentoInventoryStart, ExportMagentoInventory,
     ExportMagentoShipmentStatusStart,
     ExportMagentoShipmentStatus, ImportMagentoCarriersStart,
     ImportMagentoCarriers, ConfigureMagento, ImportStoresStart, FailureStart,
@@ -40,7 +39,6 @@ def register():
         FailureStart,
         SuccessStart,
         ImportWebsitesStart,
-        ExportMagentoInventoryStart,
         ExportMagentoShipmentStatusStart,
         Country,
         Subdivision,
@@ -68,7 +66,6 @@ def register():
         module='magento', type_='model'
     )
     Pool.register(
-        ExportMagentoInventory,
         ExportMagentoShipmentStatus,
         UpdateMagentoCatalog,
         ExportMagentoCatalog,
