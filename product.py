@@ -5,6 +5,7 @@ import xmlrpclib
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.transaction import Transaction
 from trytond.pool import PoolMeta, Pool
+from trytond.pyson import Eval
 from decimal import Decimal
 
 
@@ -191,15 +192,19 @@ class ProductSaleChannelListing:
     price_tiers = fields.One2Many(
         'product.price_tier', 'product_listing', 'Price Tiers'
     )
-    magento_product_type = fields.Selection([
-        (None, ''),
-        ('simple', 'Simple'),
-        ('configurable', 'Configurable'),
-        ('grouped', 'Grouped'),
-        ('bundle', 'Bundle'),
-        ('virtual', 'Virtual'),
-        ('downloadable', 'Downloadable'),
-    ], 'Magento Product Type', readonly=True)
+    magento_product_type = fields.Selection(
+        [
+            (None, ''),
+            ('simple', 'Simple'),
+            ('configurable', 'Configurable'),
+            ('grouped', 'Grouped'),
+            ('bundle', 'Bundle'),
+            ('virtual', 'Virtual'),
+            ('downloadable', 'Downloadable'),
+        ], 'Magento Product Type', readonly=True, states={
+            "invisible": Eval('channel_source') != 'magento'
+        }, depends=['channel_source']
+    )
 
     @classmethod
     def create_from(cls, channel, product_data):
