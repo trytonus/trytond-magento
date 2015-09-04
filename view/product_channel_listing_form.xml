@@ -4,12 +4,9 @@
         <label name="magento_product_type"/>
         <field name="magento_product_type"/>
     </xpath>
-
-    <xpath expr="//field[@name='product']" position="after">
-        <notebook>
-            <page id="price_tiers" string="Price Tiers">
-                <field name="price_tiers"/>
-            </page>
-        </notebook>
+    <xpath expr="/form/notebook" position="inside">
+        <page id="price_tiers" string="Price Tiers" states="{'invisible': Eval('channel_source') != 'magento'}">
+            <field name="price_tiers"/>
+        </page>
     </xpath>
 </data>
