@@ -201,7 +201,7 @@ class Sale:
         # Process sale now
         tryton_action = channel.get_tryton_action(order_data['state'])
         try:
-            sale.process_sale_using_magento_state(order_data['state'])
+            sale.process_to_channel_state(order_data['state'])
         except UserError, e:
             # Expecting UserError will only come when sale order has
             # channel exception.
@@ -468,26 +468,6 @@ class Sale:
             'note': order_data['discount_description'],
             'quantity': 1,
         })
-
-    def process_sale_using_magento_state(self, magento_state):
-        """
-        Process the sale in tryton based on the state of order
-        when its imported from magento
-
-        :param magento_state: State on magento the order was imported in
-        """
-        Sale = Pool().get('sale.sale')
-
-        data = self.channel.get_tryton_action(magento_state)
-
-        if data['action'] in ['process_manually', 'process_automatically']:
-            Sale.quote([self])
-            Sale.confirm([self])
-
-        if data['action'] == 'process_automatically':
-            Sale.process([self])
-
-        # TODO: Handle import as past action for magento state
 
     def export_order_status_to_magento(self):
         """
