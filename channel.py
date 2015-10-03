@@ -283,6 +283,9 @@ class Channel:
         if self.source != 'magento':
             return super(Channel, self).import_product(sku)
 
+        # Sanitize SKU
+        sku = sku.strip()
+
         products = Product.search([
             ('code', '=', sku),
         ])
