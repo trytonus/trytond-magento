@@ -41,7 +41,8 @@ def mock_product_api(mock=None, data=None):
         mock = MagicMock(spec=magento.Product)
 
     handle = MagicMock(spec=magento.Product)
-    handle.info.side_effect = lambda id: load_json('products', str(id))
+    handle.info.side_effect = \
+        lambda id, identifierType: load_json('products', str(id))
     if data is None:
         handle.__enter__.return_value = handle
     else:

@@ -298,7 +298,7 @@ class Channel:
                 self.magento_url, self.magento_api_user,
                 self.magento_api_key
             ) as product_api:
-                product_data = product_api.info(sku)
+                product_data = product_api.info(sku, identifierType="SKU")
 
                 # XXX: sanitize product_data, sometimes product sku may
                 # contain trailing spaces
@@ -616,7 +616,8 @@ class Channel:
                 self.magento_url, self.magento_api_user, self.magento_api_key
             ) as tier_price_api:
                 tier_price_api.update(
-                    listing.product_identifier, price_data
+                    listing.product_identifier, price_data,
+                    identifierType="productID"
                 )
 
         return len(product_listings)
