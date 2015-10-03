@@ -300,6 +300,10 @@ class Channel:
             ) as product_api:
                 product_data = product_api.info(sku)
 
+                # XXX: sanitize product_data, sometimes product sku may
+                # contain trailing spaces
+                product_data['sku'] = product_data['sku'].strip()
+
             # Create a product since there is no match for an existing
             # product with the SKU.
             if not products:
