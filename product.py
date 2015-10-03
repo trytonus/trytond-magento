@@ -425,7 +425,8 @@ class Product:
                 ('channel', '=', channel.id),
             ])
             product_data = product_api.info(
-                channel_listing.product_identifier
+                channel_listing.product_identifier,
+                identifierType="productID"
             )
 
         return self.update_from_magento_using_data(product_data)
