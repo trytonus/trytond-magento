@@ -248,8 +248,14 @@ class ProductSaleChannelListing:
         with Transaction().set_context(locations=[channel.warehouse.id]):
             product_data = {
                 'qty': product.quantity,
-                'is_in_stock': '1' if product.quantity > 0 else '0',
             }
+            if self.magento_product_type == 'simple':
+                # Only send inventory for simple products
+                product_data['is_in_stock'] = '1' \
+                    if product.quantity > 0 else '0'
+            else:
+                # configurable, bundle and everything else
+                product_data['is_in_stock'] = '1'
 
         # Update stock information to magento
         # TODO: Figure out a way to do a bulk update and see the
