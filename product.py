@@ -241,7 +241,7 @@ class ProductSaleChannelListing:
         Export inventory of this listing
         """
         if self.channel.source != 'magento':
-            super(ProductSaleChannelListing, self).export_inventory()
+            return super(ProductSaleChannelListing, self).export_inventory()
 
         channel, product = self.channel, self.product
 
