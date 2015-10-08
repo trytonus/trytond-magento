@@ -482,7 +482,11 @@ class Sale:
 
         channel.validate_magento_channel()
 
-        increment_id = self.reference.split(channel.magento_order_prefix)[1]
+        if channel.magento_order_prefix:
+            # TODO: Use channel_identifier
+            increment_id = self.reference.split(channel.magento_order_prefix)[1]
+        else:
+            increment_id = self.reference
         # This try except is placed because magento might not accept this
         # order status change due to its workflow constraints.
         # TODO: Find a better way to do it
