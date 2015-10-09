@@ -247,6 +247,9 @@ class Sale:
                 }])]
             }])
 
+            for transaction in payment.payment_transactions:
+                transaction.safe_post()
+
     def add_lines_using_magento_data(self, order_data):
         """
         Create sale lines from the magento data and associate them with
