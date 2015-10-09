@@ -361,23 +361,13 @@ class Channel:
             with magento.Order(
                 self.magento_url, self.magento_api_user, self.magento_api_key
             ) as order_api:
-                # Filter orders with date and store_id using list()
+                # Filter orders store_id using list()
                 # then get info of each order using info()
                 # and call find_or_create_using_magento_data on sale
                 filter = {
                     'store_id': {'=': self.magento_store_id},
                     'state': {'in': order_states_to_import_in},
                 }
-                if self.last_order_import_time:
-                    last_order_import_time = \
-                        self.last_order_import_time.replace(
-                            microsecond=0
-                        )
-                    filter.update({
-                        'updated_at': {
-                            'gteq': last_order_import_time.isoformat(' ')
-                        },
-                    })
                 self.write([self], {
                     'last_order_import_time': datetime.utcnow()
                 })
