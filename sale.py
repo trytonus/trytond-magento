@@ -237,9 +237,15 @@ class Sale:
                 'magento_id': payment_data['payment_id'],
                 'amount': Decimal(payment_data['amount_paid']),
                 'credit_account': self.party.account_receivable.id,
+                'payment_transactions': [('create', [{
+                    'party': self.party.id,
+                    'address': self.invoice_address.id,
+                    'state': 'completed',
+                    'gateway': magento_gateway.gateway.id,
+                    'amount': Decimal(payment_data['amount_paid']),
+                    'credit_account': self.party.account_receivable.id,
+                }])]
             }])
-            self.capture_payments(Decimal(payment_data['amount_paid']))
-            self.process_pending_payments()
 
     def add_lines_using_magento_data(self, order_data):
         """
