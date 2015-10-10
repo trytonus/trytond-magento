@@ -658,6 +658,19 @@ class Channel:
                 'shipment_method': 'manual'
             }
 
+    def update_order_status(self):
+        Sale = Pool().get('sale.sale')
+
+        if self.source != 'magento':
+            return super(Channel, self).update_order_status()
+
+        sales, = Sale.search([
+            ('channel', '=', self.id),
+            ('state', 'in', ('confirmed', 'processing')),
+        ])
+        for sale in sales:
+            sale.update_order_status_from_magento()
+
 
 class MagentoTier(ModelSQL, ModelView):
     """Price Tiers for store
