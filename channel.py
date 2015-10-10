@@ -664,7 +664,7 @@ class Channel:
         if self.source != 'magento':
             return super(Channel, self).update_order_status()
 
-        sales, = Sale.search([
+        sales = Sale.search([
             ('channel', '=', self.id),
             ('state', 'in', ('confirmed', 'processing')),
         ])
