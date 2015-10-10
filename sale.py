@@ -237,9 +237,18 @@ class Sale:
                 'magento_id': payment_data['payment_id'],
                 'amount': Decimal(payment_data['amount_paid']),
                 'credit_account': self.party.account_receivable.id,
+                'payment_transactions': [('create', [{
+                    'party': self.party.id,
+                    'address': self.invoice_address.id,
+                    'state': 'completed',
+                    'gateway': magento_gateway.gateway.id,
+                    'amount': Decimal(payment_data['amount_paid']),
+                    'credit_account': self.party.account_receivable.id,
+                }])]
             }])
-            self.capture_payments(Decimal(payment_data['amount_paid']))
-            self.process_pending_payments()
+
+            for transaction in payment.payment_transactions:
+                transaction.safe_post()
 
     def add_lines_using_magento_data(self, order_data):
         """
@@ -513,6 +522,35 @@ class Sale:
         default = default.copy()
         default['magento_id'] = None
         return super(Sale, cls).copy(sales, default=default)
+
+    def update_order_status_from_magento(self):
+        """Update order status from magento.
+
+        :TODO: this only handles complete orders of magento. Should handle
+        other states too?
+        """
+        Shipment = Pool().get('stock.shipment.out')
+
+        with magento.Order(
+            self.channel.magento_url, self.channel.magento_api_user,
+            self.channel.magento_api_key
+        ) as order_api:
+            order_data = order_api.info(self.reference)
+
+        if order_data['status'] == 'complete':
+            # Order is completed on magento, process shipments and
+            # invoices.
+            for shipment in self.shipments:
+                if shipment.state == 'draft':
+                    Shipment.wait([shipment])
+                if shipment.state == 'waiting':
+                    Shipment.assign([shipment])
+                if shipment.state == 'assigned':
+                    Shipment.pack([shipment])
+                if shipment.state == 'packed':
+                    Shipment.done([shipment])
+
+            # TODO: handle invoices?
 
 
 class SaleLine:

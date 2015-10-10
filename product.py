@@ -243,9 +243,13 @@ class ProductSaleChannelListing:
         if self.channel.source != 'magento':
             return super(ProductSaleChannelListing, self).export_inventory()
 
+        Date = Pool().get('ir.date')
         channel, product = self.channel, self.product
 
-        with Transaction().set_context(locations=[channel.warehouse.id]):
+        with Transaction().set_context(
+                locations=[channel.warehouse.id],
+                stock_date_end=Date.today(),
+                stock_assign=True):
             product_data = {
                 'qty': product.quantity,
             }
