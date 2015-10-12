@@ -350,13 +350,16 @@ class Product:
         Channel = Pool().get('sale.channel')
 
         channel = Channel.get_current_magento_channel()
-        return {
+        values = {
             'name': product_data.get('name') or
                 ('SKU: ' + product_data.get('sku')),
             'default_uom': channel.default_uom.id,
             'salable': True,
             'sale_uom': channel.default_uom.id,
         }
+        if product_data['type'] == 'downloadable':
+            values['type'] = 'service'
+        return values
 
     @classmethod
     def create_from(cls, channel, product_data):
