@@ -243,6 +243,9 @@ class TestProduct(TestBase):
                     product_data
                 )
                 self.assertEqual(
+                    product.template.type, 'service'
+                )
+                self.assertEqual(
                     product.channel_listings[0].magento_product_type,
                     'downloadable'
                 )
