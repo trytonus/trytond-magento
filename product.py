@@ -305,7 +305,7 @@ class ProductSaleChannelListing:
                     response = inventory_api.update_multi(product_data_batch)
                     # Magento bulk API will not raise Faults.
                     # Instead the response contains the faults as a dict
-                    for result, product_data in response:
+                    for result in response:
                         if result is not True:
                             # TODO: True when success, dictionary of fault
                             # when the product is not there
