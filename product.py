@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import magento
-import xmlrpclib
+from collections import defaultdict
 
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.transaction import Transaction
@@ -15,6 +15,12 @@ __all__ = [
     'ProductPriceTier',
 ]
 __metaclass__ = PoolMeta
+
+
+def batch(iterable, n=1):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx + n, l)]
 
 
 class Category:
@@ -243,44 +249,69 @@ class ProductSaleChannelListing:
         if self.channel.source != 'magento':
             return super(ProductSaleChannelListing, self).export_inventory()
 
-        Date = Pool().get('ir.date')
-        channel, product = self.channel, self.product
+        return self.export_bulk_inventory([self])
 
-        with Transaction().set_context(
-                locations=[channel.warehouse.id],
-                stock_date_end=Date.today(),
-                stock_assign=True):
+    @classmethod
+    def export_bulk_inventory(cls, listings):
+        """
+        Bulk export inventory to magento.
+
+        Do not rely on the return value from this method.
+        """
+        if not listings:
+            # Nothing to update
+            return
+
+        non_magento_listings = cls.search([
+            ('id', 'in', map(int, listings)),
+            ('channel.source', '!=', 'magento'),
+        ])
+        if non_magento_listings:
+            return super(ProductSaleChannelListing, cls).export_bulk_inventory(
+                non_magento_listings
+            )
+        magento_listings = filter(
+            lambda l: l not in non_magento_listings, listings
+        )
+
+        inventory_channel_map = defaultdict(list)
+        for listing in magento_listings:
+            channel = listing.channel
+
             product_data = {
-                'qty': product.quantity,
+                'qty': listing.quantity,
             }
-            if self.magento_product_type == 'simple':
+
+            # TODO: Get this from availability used
+            if listing.magento_product_type == 'simple':
                 # Only send inventory for simple products
                 product_data['is_in_stock'] = '1' \
-                    if product.quantity > 0 else '0'
+                    if listing.quantity > 0 else '0'
             else:
                 # configurable, bundle and everything else
                 product_data['is_in_stock'] = '1'
 
-        # Update stock information to magento
-        # TODO: Figure out a way to do a bulk update and see the
-        # result. At the moment this sucks because each update
-        # takes forever on the slow magento API
-        with magento.Inventory(
-            channel.magento_url, channel.magento_api_user,
-            channel.magento_api_key
-        ) as inventory_api:
-            try:
-                inventory_api.update(
-                    self.product_identifier, product_data
-                )
-            except xmlrpclib.Fault, e:
-                if e.faultCode == 101:
-                    # Product does not exists
-                    self.state = 'disabled'
-                    self.save()
-                    # TODO: Notify human
-                else:
-                    raise
+            # group inventory xml by channel
+            inventory_channel_map[channel].append([
+                listing.product_identifier, product_data
+            ])
+
+        for channel, product_data_list in inventory_channel_map.iteritems():
+            with magento.Inventory(
+                    channel.magento_url,
+                    channel.magento_api_user,
+                    channel.magento_api_key) as inventory_api:
+                for product_data_batch in batch(product_data_list, 50):
+                    response = inventory_api.update_multi(product_data_batch)
+                    # Magento bulk API will not raise Faults.
+                    # Instead the response contains the faults as a dict
+                    for result, product_data in response:
+                        if result is not True:
+                            # TODO: True when success, dictionary of fault
+                            # when the product is not there
+                            # 1. Find product and listing
+                            # 2. Disable the listing
+                            pass
 
 
 class Product:
