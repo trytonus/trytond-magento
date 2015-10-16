@@ -388,7 +388,7 @@ class Product:
             'salable': True,
             'sale_uom': channel.default_uom.id,
         }
-        if product_data['type'] == 'downloadable':
+        if product_data['type'] in ('downloadable', 'virtual'):
             values['type'] = 'service'
         return values
 
