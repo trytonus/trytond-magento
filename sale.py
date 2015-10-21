@@ -523,7 +523,7 @@ class Sale:
         default['magento_id'] = None
         return super(Sale, cls).copy(sales, default=default)
 
-    def update_order_status_from_magento(self):
+    def update_order_status_from_magento(self, order_data=None):
         """Update order status from magento.
 
         :TODO: this only handles complete orders of magento. Should handle
@@ -531,11 +531,14 @@ class Sale:
         """
         Shipment = Pool().get('stock.shipment.out')
 
-        with magento.Order(
-            self.channel.magento_url, self.channel.magento_api_user,
-            self.channel.magento_api_key
-        ) as order_api:
-            order_data = order_api.info(self.reference)
+        if order_data is None:
+            # XXX: Magento order_data is already there, so need not to
+            # fetch again
+            with magento.Order(
+                self.channel.magento_url, self.channel.magento_api_user,
+                self.channel.magento_api_key
+            ) as order_api:
+                order_data = order_api.info(self.reference)
 
         if order_data['status'] == 'complete':
             # Order is completed on magento, process shipments and

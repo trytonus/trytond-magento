@@ -23,6 +23,12 @@ INVISIBLE_IF_NOT_MAGENTO = {
 }
 
 
+def batch(iterable, n=1):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx + n, l)]
+
+
 class Channel:
     """
     Sale Channel model
@@ -659,6 +665,7 @@ class Channel:
             }
 
     def update_order_status(self):
+        "Downstream implementation of order_status update"
         Sale = Pool().get('sale.sale')
 
         if self.source != 'magento':
@@ -668,8 +675,18 @@ class Channel:
             ('channel', '=', self.id),
             ('state', 'in', ('confirmed', 'processing')),
         ])
-        for sale in sales:
-            sale.update_order_status_from_magento()
+        order_ids = [sale.reference for sale in sales]
+        for order_ids_batch in batch(order_ids, 50):
+            with magento.Order(
+                self.magento_url, self.magento_api_user, self.magento_api_key
+            ) as order_api:
+                orders_data = order_api.info_multi(order_ids_batch)
+
+            for order_data in orders_data:
+                sale, = Sale.search([
+                    ('reference', '=', order_data['increment_id'])
+                ])
+                sale.update_order_status_from_magento(order_data=order_data)
 
 
 class MagentoTier(ModelSQL, ModelView):
