@@ -539,7 +539,7 @@ class TestSale(TestBase):
 
                 with patch('magento.Order', mock_order_api(), create=True):
                     order_exported = \
-                        self.channel1.export_order_status_to_magento()
+                        self.channel1.export_order_status()
 
                     self.assertEqual(len(order_exported), 1)
                     self.assertEqual(order_exported[0], order)
@@ -595,8 +595,7 @@ class TestSale(TestBase):
                 )
 
                 with patch('magento.Order', mock_order_api(), create=True):
-                    order_exported = \
-                        self.channel1.export_order_status_to_magento()
+                    order_exported = self.channel1.export_order_status()
 
                     self.assertEqual(len(order_exported), 0)
 
@@ -754,8 +753,7 @@ class TestSale(TestBase):
                 )
 
                 with patch('magento.Order', mock_order_api(), create=True):
-                    order_exported = \
-                        self.channel1.export_order_status_to_magento()
+                    order_exported = self.channel1.export_order_status()
 
                     self.assertEqual(len(order_exported), 1)
                     self.assertEqual(order_exported[0], order)

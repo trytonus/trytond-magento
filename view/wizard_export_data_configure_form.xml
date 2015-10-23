@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form string="Configure" col="2">
+    <label name="category"/>
+    <field name="category"/>
+    <label name="attribute_set"/>
+    <field name="attribute_set"/>
+</form>

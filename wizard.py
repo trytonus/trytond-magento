@@ -6,7 +6,7 @@ from .api import Core
 from trytond.model import ModelView, fields
 from trytond.pool import PoolMeta, Pool
 from trytond.transaction import Transaction
-from trytond.pyson import PYSONEncoder
+from trytond.pyson import PYSONEncoder, Eval
 from trytond.wizard import (
     Wizard, StateView, Button, StateAction, StateTransition
 )
@@ -17,72 +17,8 @@ __all__ = [
     'ImportMagentoCarriers', 'ConfigureMagento',
     'TestMagentoConnectionStart', 'ImportWebsitesStart',
     'ImportStoresStart', 'FailureStart', 'SuccessStart',
-    'ExportMagentoOrderStatusStart', 'ExportMagentoOrderStatus',
-    'UpdateMagentoCatalogStart', 'UpdateMagentoCatalog',
-    'ExportMagentoCatalogStart', 'ExportMagentoCatalog'
 ]
 __metaclass__ = PoolMeta
-
-
-class ExportMagentoOrderStatusStart(ModelView):
-    "Export Order Status Start View"
-    __name__ = 'magento.wizard_export_order_status.start'
-
-    message = fields.Text("Message", readonly=True)
-
-
-class ExportMagentoOrderStatus(Wizard):
-    """
-    Export Order Status wizard
-
-    Export order status to magento for the current store view
-    """
-    __name__ = 'magento.wizard_export_order_status'
-
-    start = StateView(
-        'magento.wizard_export_order_status.start',
-        'magento.wizard_export_magento_order_status_view_start_form',
-        [
-            Button('Cancel', 'end', 'tryton-cancel'),
-            Button('Continue', 'export_', 'tryton-ok', default=True),
-        ]
-    )
-
-    export_ = StateAction('magento.act_sale_form_all')
-
-    def default_start(self, data):
-        """
-        Sets default data for wizard
-
-        :param data: Wizard data
-        """
-        Channel = Pool().get('sale.channel')
-
-        channel = Channel(Transaction().context.get('active_id'))
-        channel.validate_magento_channel()
-        return {
-            'message':
-                "This wizard will export orders status to magento " +
-                "for this store view. All the orders edited/updated after " +
-                "the Last Order Export Time will be exported."
-        }
-
-    def do_export_(self, action):
-        """
-        Export order status to magento
-        """
-        Channel = Pool().get('sale.channel')
-
-        channel = Channel(Transaction().context.get('active_id'))
-        channel.validate_magento_channel()
-
-        sales = channel.export_order_status_to_magento()
-
-        data = {'res_id': [sale.id for sale in sales]}
-        return action, data
-
-    def transition_export_(self):
-        return 'end'
 
 
 class ImportMagentoCarriersStart(ModelView):
@@ -480,26 +416,28 @@ class UpdateMagentoCatalog(Wizard):
         return map(int, products)
 
 
-class ExportMagentoCatalogStart(ModelView):
-    'Export Catalog View'
-    __name__ = 'magento.export_catalog.start'
+class ExportDataWizardConfigure(ModelView):
+    "Export Data Start View"
+    __name__ = 'sale.channel.export_data.configure'
 
     category = fields.Many2One(
-        'product.category', 'Magento Category', required=True,
-        domain=[('magento_ids', 'not in', [])],
-    )
-    products = fields.Many2Many(
-        'product.product', None, None, 'Products', required=True,
-        domain=[('channel_listings', '=', None)],
+        'product.category', 'Magento Category', states={
+            'required': Eval('channel_source') == 'magento',
+            'invisible': Eval('channel_source') != 'magento',
+        }, depends=['channel_source'], domain=[('magento_ids', 'not in', [])],
     )
     attribute_set = fields.Selection(
-        [], 'Attribute Set', required=True,
+        [], 'Attribute Set', states={
+            'required': Eval('channel_source') == 'magento',
+            'invisible': Eval('channel_source') != 'magento',
+        }, depends=['channel_source'],
     )
+
+    channel_source = fields.Char("Channel Source")
 
     @classmethod
     def get_attribute_sets(cls):
         """Get the list of attribute sets from magento for the current channel
-
         :return: Tuple of attribute sets where each tuple consists of (ID,Name)
         """
         Channel = Pool().get('sale.channel')
@@ -529,48 +467,57 @@ class ExportMagentoCatalogStart(ModelView):
         if the meth:get_attribute_sets is called directly from the field.
         """
         rv = super(
-            ExportMagentoCatalogStart, cls
+            ExportDataWizardConfigure, cls
         ).fields_view_get(view_id, view_type)
         rv['fields']['attribute_set']['selection'] = cls.get_attribute_sets()
         return rv
 
 
-class ExportMagentoCatalog(Wizard):
-    '''Export catalog
+class ExportDataWizard:
+    "Wizard to export data to external channel"
+    __name__ = 'sale.channel.export_data'
 
-    Export the products selected to the selected category for this channel
-    '''
-    __name__ = 'magento.export_catalog'
-
-    start = StateView(
-        'magento.export_catalog.start',
-        'magento.magento_export_catalog_start_view_form', [
+    configure = StateView(
+        'sale.channel.export_data.configure',
+        'magento.export_data_configure_view_form',
+        [
             Button('Cancel', 'end', 'tryton-cancel'),
-            Button('Continue', 'export_', 'tryton-ok', default=True),
+            Button('Continue', 'next', 'tryton-go-next', default=True),
         ]
     )
-    export_ = StateAction('product.act_template_form')
 
-    def do_export_(self, action):
+    def default_configure(self, data):
+        Channel = Pool().get('sale.channel')
+
+        channel = Channel(Transaction().context.get('active_id'))
+        return {
+            'channel_source': channel.source
+        }
+
+    def transition_next(self):
+        Channel = Pool().get('sale.channel')
+
+        channel = Channel(Transaction().context.get('active_id'))
+
+        if channel.source == 'magento':
+            return 'configure'
+
+        return super(ExportDataWizard, self).transition_next()
+
+    def transition_export_(self):
         """
-        Export the products selected to the selected category for this website
+        Export the products for the selected category on this channel
         """
         Channel = Pool().get('sale.channel')
 
         channel = Channel(Transaction().context['active_id'])
-        channel.validate_magento_channel()
+
+        if channel.source != 'magento':
+            return super(ExportDataWizard, self).transition_export_()
 
         with Transaction().set_context({
             'current_channel': channel.id,
             'magento_attribute_set': self.start.attribute_set,
+            'category': self.start.category,
         }):
-            for product in self.start.products:
-                product.export_to_magento(self.start.category)
-
-        action['pyson_domain'] = PYSONEncoder().encode(
-            [('id', 'in', map(int, self.start.products))])
-
-        return action, {}
-
-    def transition_export_(self):
-        return 'end'
+            return super(ExportDataWizard, self).transition_export_()
