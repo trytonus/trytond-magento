@@ -139,7 +139,6 @@ class Sale:
                 Address.find_or_create_for_party_using_magento_data(
                     party, order_data['shipping_address']
                 )
-        unit, = Uom.search([('name', '=', 'Unit')])
 
         tryton_action = channel.get_tryton_action(order_data['state'])
 
@@ -294,12 +293,10 @@ class Sale:
         SaleLine = Pool().get('sale.line')
         ChannelException = Pool().get('channel.exception')
         Channel = Pool().get('sale.channel')
-        Uom = Pool().get('product.uom')
 
         channel = Channel.get_current_magento_channel()
 
         sale_line = None
-        unit, = Uom.search([('name', '=', 'Unit')])
         if not item['parent_item_id']:
             # If its a top level product, create it
             try:
@@ -322,7 +319,7 @@ class Sale:
                 'magento_id': int(item['item_id']),
                 'description': item['name'] or product.name,
                 'unit_price': Decimal(item['price']),
-                'unit': unit.id,
+                'unit': channel.default_uom,
                 'quantity': Decimal(item['qty_ordered']),
                 'note': item.get('comments'),
                 'product': product,
@@ -425,11 +422,9 @@ class Sale:
 
         :param order_data: Order Data from magento
         """
-        Uom = Pool().get('product.uom')
         MagentoCarrier = Pool().get('magento.instance.carrier')
         SaleLine = Pool().get('sale.line')
 
-        unit, = Uom.search([('name', '=', 'Unit')])
         carrier_data = self.get_carrier_data_from_order_data(order_data)
 
         magento_carrier = MagentoCarrier.find_using_magento_data(carrier_data)
@@ -447,7 +442,7 @@ class Sale:
                     'Magento Shipping',
             'product': product,
             'unit_price': Decimal(order_data.get('shipping_amount', 0.00)),
-            'unit': unit.id,
+            'unit': self.channel.default_uom.id,
             'note': ' - '.join([
                     'Magento Shipping',
                     order_data['shipping_method'],
@@ -464,16 +459,13 @@ class Sale:
         :param order_data: Order Data from magento
         """
         SaleLine = Pool().get('sale.line')
-        Uom = Pool().get('product.uom')
-
-        unit, = Uom.search([('name', '=', 'Unit')])
 
         return SaleLine(**{
             'sale': self.id,
             'description': order_data['discount_description'] or
                 'Magento Discount',
             'unit_price': Decimal(order_data.get('discount_amount', 0.00)),
-            'unit': unit.id,
+            'unit': self.channel.default_uom.id,
             'note': order_data['discount_description'],
             'quantity': 1,
         })

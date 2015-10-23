@@ -54,7 +54,6 @@ class BOM:
         :param order_data: Order Data from magento
         :return: Found or created BoM's active record
         """
-        Uom = Pool().get('product.uom')
         ProductBom = Pool().get('product.product-production.bom')
         Channel = Pool().get('sale.channel')
 
@@ -99,16 +98,15 @@ class BOM:
                     break
             else:
                 # No matching BoM found, create a new one
-                unit, = Uom.search([('name', '=', 'Unit')])
                 bom, = cls.create([{
                     'name': bundle_product.name,
                     'inputs': [('create', [{
-                        'uom': unit.id,
+                        'uom': channel.default_uom,
                         'product': product.id,
                         'quantity': quantity,
                     }]) for product, quantity in child_products],
                     'outputs': [('create', [{
-                        'uom': unit,
+                        'uom': channel.default_uom,
                         'product': bundle_product.id,
                         'quantity': bundle_product.quantity,
                     }])]
