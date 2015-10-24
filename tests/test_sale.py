@@ -815,8 +815,10 @@ class TestSale(TestBase):
                 product = self.channel1.import_product('VGN-TXN27N-BW')
 
                 self.assertEqual(len(product.boms), 1)
+
+                # virtual product is ignored
                 self.assertEqual(
-                    len(product.boms[0].bom.inputs), 2
+                    len(product.boms[0].bom.inputs), 1
                 )
 
     def test_0090_import_sale_order_with_bundle_product_check_duplicate(self):
@@ -873,7 +875,9 @@ class TestSale(TestBase):
                     'VGN-TXN27N-BW'
                 )
                 self.assertEqual(len(product.boms), 1)
-                self.assertEqual(len(product.boms[0].bom.inputs), 2)
+
+                # virtual product is ignored
+                self.assertEqual(len(product.boms[0].bom.inputs), 1)
 
     def test_0100_import_sale_with_bundle_plus_child_separate(self):
         """

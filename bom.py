@@ -70,14 +70,17 @@ class BOM:
 
             # It contains a list of tuples, in which the first element is the
             # product's active record and second is its quantity in the BoM
-            child_products = [(
-                channel.get_product(
-                    each['sku']
-                ), (
-                    float(each['qty_ordered']) /
-                    float(data['bundle']['qty_ordered'])
-                )
-            ) for each in data['components']]
+            child_products = []
+            for each in data['components']:
+                if each['product_type'] not in ('virtual', 'downloadable'):
+                    child_products.append((
+                        channel.get_product(
+                            each['sku']
+                        ), (
+                            float(each['qty_ordered']) /
+                            float(data['bundle']['qty_ordered'])
+                        )
+                    ))
 
             # Here we match the sets of BoM components for equality
             # Each set contains tuples of product and quantity of that
