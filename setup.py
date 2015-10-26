@@ -55,7 +55,7 @@ requires = [
 ]
 MODULE2PREFIX = {
     'sale_channel': 'fio',
-    'product_variant': 'openlabs',
+    'product_variant': 'fio',
     'sale_payment_gateway': 'fio',
 }
 for dep in info.get('depends', []):
