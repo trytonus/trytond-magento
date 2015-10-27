@@ -97,7 +97,6 @@ class Sale:
         Party = Pool().get('party.party')
         Address = Pool().get('party.address')
         Currency = Pool().get('currency.currency')
-        Uom = Pool().get('product.uom')
         Channel = Pool().get('sale.channel')
 
         channel = Channel.get_current_magento_channel()
