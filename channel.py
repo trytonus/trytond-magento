@@ -621,7 +621,7 @@ class Channel:
 
         return len(product_listings)
 
-    def get_default_tryton_action(self, name):
+    def get_default_tryton_action(self, code, name):
         """
         Returns tryton order state for magento state
 
@@ -629,29 +629,29 @@ class Channel:
         :return: A dictionary of tryton state and shipment and invoice methods
         """
         if self.source != 'magento':
-            return super(Channel, self).get_tryton_action(name)
+            return super(Channel, self).get_default_tryton_action(code, name)
 
-        if name in ('new', 'holded'):
+        if code in ('new', 'holded'):
             return {
                 'action': 'process_manually',
                 'invoice_method': 'order',
                 'shipment_method': 'order'
             }
-        elif name in ('pending_payment', 'payment_review'):
+        elif code in ('pending_payment', 'payment_review'):
             return {
                 'action': 'import_as_past',
                 'invoice_method': 'order',
                 'shipment_method': 'invoice'
             }
 
-        elif name in ('closed', 'complete'):
+        elif code in ('closed', 'complete'):
             return {
                 'action': 'import_as_past',
                 'invoice_method': 'order',
                 'shipment_method': 'order'
             }
 
-        elif name == 'processing':
+        elif code == 'processing':
             return {
                 'action': 'process_automatically',
                 'invoice_method': 'order',
