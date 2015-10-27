@@ -151,7 +151,7 @@ class TestSale(TestBase):
             self.setup_defaults()
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('new'),
+                self.channel1.get_default_tryton_action('new', 'new'),
                 {
                      'action': 'process_manually',
                      'invoice_method': 'order',
@@ -160,7 +160,7 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('holded'),
+                self.channel1.get_default_tryton_action('holded', 'holded'),
                 {
                      'action': 'process_manually',
                      'invoice_method': 'order',
@@ -169,7 +169,8 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('pending_payment'),
+                self.channel1.get_default_tryton_action(
+                    'pending_payment', 'pending_payment'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -178,7 +179,8 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('payment_review'),
+                self.channel1.get_default_tryton_action(
+                    'payment_review', 'payment_review'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -187,7 +189,8 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('closed'),
+                self.channel1.get_default_tryton_action(
+                    'closed', 'closed'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -196,7 +199,8 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('complete'),
+                self.channel1.get_default_tryton_action(
+                    'complete', 'complete'),
                 {
                     'action': 'import_as_past',
                     'invoice_method': 'order',
@@ -205,7 +209,8 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('processing'),
+                self.channel1.get_default_tryton_action(
+                    'processing', 'processing'),
                 {
                     'action': 'process_automatically',
                     'invoice_method': 'order',
@@ -214,7 +219,8 @@ class TestSale(TestBase):
             )
 
             self.assertEqual(
-                self.channel1.get_default_tryton_action('cancelled'),
+                self.channel1.get_default_tryton_action(
+                    'cancelled', 'cancelled'),
                 {
                     'action': 'do_not_import',
                     'invoice_method': 'manual',
