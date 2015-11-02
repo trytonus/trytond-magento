@@ -71,5 +71,15 @@
             <field name="function">export_shipment_status_to_magento_using_cron</field>
         </record>
 
+        <record model="ir.ui.view" id="magento_payment_view_tree">
+            <field name="model">magento.instance.payment_gateway</field>
+            <field name="type">tree</field>
+            <field name="name">magento_payment_tree</field>
+        </record>
+        <record model="ir.ui.view" id="magento_payment_view_form">
+            <field name="model">magento.instance.payment_gateway</field>
+            <field name="type">form</field>
+            <field name="name">magento_payment_form</field>
+        </record>
     </data>
 </tryton>
