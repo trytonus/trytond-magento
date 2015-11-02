@@ -59,23 +59,6 @@
             <field name="name">wizard_import_carriers_start_form</field>
         </record>
 
-        <!--Export Order Status-->
-        <record model="ir.action.wizard" id="wizard_export_magento_order_status">
-            <field name="name">Export Order Status To Magento</field>
-            <field name="wiz_name">magento.wizard_export_order_status</field>
-            <field name="model">sale.channel</field>
-        </record>
-        <record model="ir.action.keyword" id="wizard_export_magento_order_status_keyword">
-            <field name="keyword">form_action</field>
-            <field name="model">sale.channel,-1</field>
-            <field name="action" ref="wizard_export_magento_order_status"/>
-        </record>
-        <record model="ir.ui.view" id="wizard_export_magento_order_status_view_start_form">
-            <field name="model">magento.wizard_export_order_status.start</field>
-            <field name="type">form</field>
-            <field name="name">export_order_status_start_form</field>
-        </record>
-
         <!--Export Shipment Status Wizard-->
         <record model="ir.action.wizard" id="wizard_export_magento_shipment_status">
             <field name="name">Export Shipment Status To Magento</field>
@@ -93,21 +76,11 @@
             <field name="name">export_shipment_status_start_form</field>
         </record>
 
-        <!--Export Product Catalog Wizard-->
-        <record model="ir.action.wizard" id="wizard_magento_export_catalog">
-            <field name="name">Export Product Catalog to Magento</field>
-            <field name="wiz_name">magento.export_catalog</field>
-            <field name="model">sale.channel</field>
-        </record>
-        <record model="ir.action.keyword" id="wizard_magento_export_catalog_keyword">
-            <field name="keyword">form_action</field>
-            <field name="model">sale.channel,-1</field>
-            <field name="action" ref="wizard_magento_export_catalog"/>
-        </record>
-        <record model="ir.ui.view" id="magento_export_catalog_start_view_form">
-            <field name="model">magento.export_catalog.start</field>
+        <!--Export Data Configure Wizard-->
+        <record model="ir.ui.view" id="export_data_configure_view_form">
+            <field name="model">sale.channel.export_data.configure</field>
             <field name="type">form</field>
-            <field name="name">wizard_export_catalog_start_form</field>
+            <field name="name">wizard_export_data_configure_form</field>
         </record>
 
         <!--Update Magento Product Catalog Wizard-->

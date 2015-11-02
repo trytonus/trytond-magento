@@ -525,7 +525,7 @@ class Product:
             'tax_class_id': '1',    # FIXME
         }
 
-    def export_to_magento(self, category):
+    def export_product_catalog_to_magento(self, category):
         """Export the current product to the magento category corresponding to
         the given `category` under the current magento_channel in context
 

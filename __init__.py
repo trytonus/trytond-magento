@@ -5,9 +5,8 @@ from wizard import (
     ExportMagentoShipmentStatusStart,
     ExportMagentoShipmentStatus, ImportMagentoCarriersStart,
     ImportMagentoCarriers, ConfigureMagento, ImportStoresStart, FailureStart,
-    SuccessStart, ExportMagentoOrderStatusStart, ExportMagentoOrderStatus,
     UpdateMagentoCatalogStart, UpdateMagentoCatalog,
-    ExportMagentoCatalogStart, ExportMagentoCatalog,
+    SuccessStart, ExportDataWizardConfigure, ExportDataWizard,
 )
 from channel import Channel, MagentoTier
 from party import Party, MagentoWebsiteParty, Address
@@ -39,6 +38,7 @@ def register():
         FailureStart,
         SuccessStart,
         ImportWebsitesStart,
+        UpdateMagentoCatalogStart,
         ExportMagentoShipmentStatusStart,
         Country,
         Subdivision,
@@ -48,14 +48,12 @@ def register():
         MagentoInstanceCategory,
         Product,
         ProductPriceTier,
-        ExportMagentoCatalogStart,
+        ExportDataWizardConfigure,
         StockShipmentOut,
         Address,
-        UpdateMagentoCatalogStart,
         Currency,
         Sale,
         ImportMagentoCarriersStart,
-        ExportMagentoOrderStatusStart,
         SaleLine,
         BOM,
         MagentoTax,
@@ -67,10 +65,9 @@ def register():
     )
     Pool.register(
         ExportMagentoShipmentStatus,
-        UpdateMagentoCatalog,
-        ExportMagentoCatalog,
-        ExportMagentoOrderStatus,
+        ExportDataWizard,
         ImportMagentoCarriers,
         ConfigureMagento,
+        UpdateMagentoCatalog,
         module='magento', type_='wizard'
     )
