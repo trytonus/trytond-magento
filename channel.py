@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import magento
+import logging
 import xmlrpclib
 import socket
 
@@ -21,6 +22,8 @@ MAGENTO_STATES = {
 INVISIBLE_IF_NOT_MAGENTO = {
     'invisible': ~(Eval('source') == 'magento'),
 }
+
+logger = logging.getLogger('magento')
 
 
 def batch(iterable, n=1):
@@ -723,7 +726,18 @@ class Channel:
             ) as order_api:
                 orders_data = order_api.info_multi(order_ids_batch)
 
-            for order_data in orders_data:
+            for i, order_data in enumerate(orders_data):
+                if order_data.get('isFault'):
+                    if order_data['faultCode'] == '100':
+                        # 100: Requested order not exists.
+                        # TODO: Remove order from channel or add some
+                        # exception.
+                        pass
+                    logger.warning("Order %s: %s %s" % (
+                        order_ids_batch[i], order_data['faultCode'],
+                        order_data['faultMessage']
+                    ))
+                    continue
                 sale, = Sale.search([
                     ('reference', '=', order_data['increment_id'])
                 ])
