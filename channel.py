@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import magento
+import logging
 import xmlrpclib
 import socket
 
@@ -21,6 +22,8 @@ MAGENTO_STATES = {
 INVISIBLE_IF_NOT_MAGENTO = {
     'invisible': ~(Eval('source') == 'magento'),
 }
+
+logger = logging.getLogger('magento')
 
 
 def batch(iterable, n=1):
@@ -422,11 +425,11 @@ class Channel:
         channels = cls.search([('source', '=', 'magento')])
 
         for channel in channels:
-            channel.export_order_status_to_magento()
+            channel.export_order_status()
 
-    def export_order_status_to_magento(self):
+    def export_order_status(self):
         """
-        Export sale orders to magento for the current store view.
+        Export sale order status to magento for the current store view.
         If last export time is defined, export only those orders which are
         updated after last export time.
 
@@ -434,7 +437,8 @@ class Channel:
         """
         Sale = Pool().get('sale.sale')
 
-        self.validate_magento_channel()
+        if self.source != 'magento':
+            return super(Channel, self).export_order_status()
 
         exported_sales = []
         domain = [('channel', '=', self.id)]
@@ -453,6 +457,46 @@ class Channel:
             exported_sales.append(sale.export_order_status_to_magento())
 
         return exported_sales
+
+    def export_product_catalog(self):
+        """
+        Export the current product to the magento category corresponding to
+        the given `category` under the current magento channel
+
+        :return: Active record of product
+        """
+        Channel = Pool().get('sale.channel')
+        Product = Pool().get('product.product')
+        ModelData = Pool().get('ir.model.data')
+        Category = Pool().get('product.category')
+
+        if self.source != 'magento':
+            return super(Channel, self).export_product_catalog()
+
+        domain = [
+            ('code', '!=', None),
+        ]
+
+        if self.last_product_export_time:
+            domain.append(
+                ('write_date', '>=', self.last_product_export_time)
+            )
+
+        products = Product.search(domain)
+
+        self.last_product_export_time = datetime.utcnow()
+        self.save()
+
+        exported_products = []
+
+        category = Category(
+            ModelData.get_id("magento", "product_category_magento_unclassified")
+        )
+        for product in products:
+            exported_products.append(
+                product.export_product_catalog_to_magento(category)
+            )
+        return exported_products
 
     @classmethod
     def export_shipment_status_to_magento_using_cron(cls):
@@ -682,7 +726,18 @@ class Channel:
             ) as order_api:
                 orders_data = order_api.info_multi(order_ids_batch)
 
-            for order_data in orders_data:
+            for i, order_data in enumerate(orders_data):
+                if order_data.get('isFault'):
+                    if order_data['faultCode'] == '100':
+                        # 100: Requested order not exists.
+                        # TODO: Remove order from channel or add some
+                        # exception.
+                        pass
+                    logger.warning("Order %s: %s %s" % (
+                        order_ids_batch[i], order_data['faultCode'],
+                        order_data['faultMessage']
+                    ))
+                    continue
                 sale, = Sale.search([
                     ('reference', '=', order_data['increment_id'])
                 ])

@@ -2,6 +2,8 @@
 import sys
 import os
 from decimal import Decimal
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 
 import unittest
 import magento
@@ -448,7 +450,6 @@ class TestProduct(TestBase):
         This method does not check the API calls.
         """
         ProductTemplate = POOL.get('product.template')
-        Category = POOL.get('product.category')
         Uom = POOL.get('product.uom')
 
         with Transaction().start(DB_NAME, USER, CONTEXT) as txn:
@@ -459,9 +460,6 @@ class TestProduct(TestBase):
                 'magento_attribute_set': 1,
                 'company': self.company.id,
             }):
-                category_data = load_json('categories', '17')
-                category = Category.create_using_magento_data(category_data)
-
                 uom, = Uom.search([('name', '=', 'Unit')], limit=1)
                 product_template, = ProductTemplate.create([
                     {
@@ -479,10 +477,21 @@ class TestProduct(TestBase):
                     }]
                 )
 
+                self.channel1.last_product_export_time = \
+                    datetime.utcnow() - relativedelta(days=2)
+
+                product_template.products[0].name = "Test Product Edit"
+                product_template.products[0].save()
+
                 with patch(
                     'magento.Product', mock_product_api(), create=True
                 ):
-                    product_template.products[0].export_to_magento(category)
+                    self.channel1.export_product_catalog()
+
+                self.assertEqual(
+                    self.channel1.last_product_export_time.date(),
+                    date.today()
+                )
 
 
 def suite():

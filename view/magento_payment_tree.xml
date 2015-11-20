@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+    <tree string="Payments" editable="bottom">
+        <field name="title"/>
+        <field name="gateway"/>
+        <field name="name"/>
+    </tree>

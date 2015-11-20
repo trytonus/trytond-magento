@@ -545,7 +545,7 @@ class TestSale(TestBase):
 
                 with patch('magento.Order', mock_order_api(), create=True):
                     order_exported = \
-                        self.channel1.export_order_status_to_magento()
+                        self.channel1.export_order_status()
 
                     self.assertEqual(len(order_exported), 1)
                     self.assertEqual(order_exported[0], order)
@@ -601,8 +601,7 @@ class TestSale(TestBase):
                 )
 
                 with patch('magento.Order', mock_order_api(), create=True):
-                    order_exported = \
-                        self.channel1.export_order_status_to_magento()
+                    order_exported = self.channel1.export_order_status()
 
                     self.assertEqual(len(order_exported), 0)
 
@@ -760,8 +759,7 @@ class TestSale(TestBase):
                 )
 
                 with patch('magento.Order', mock_order_api(), create=True):
-                    order_exported = \
-                        self.channel1.export_order_status_to_magento()
+                    order_exported = self.channel1.export_order_status()
 
                     self.assertEqual(len(order_exported), 1)
                     self.assertEqual(order_exported[0], order)
@@ -823,8 +821,10 @@ class TestSale(TestBase):
                 product = self.channel1.import_product('VGN-TXN27N-BW')
 
                 self.assertEqual(len(product.boms), 1)
+
+                # virtual product is ignored
                 self.assertEqual(
-                    len(product.boms[0].bom.inputs), 2
+                    len(product.boms[0].bom.inputs), 1
                 )
 
     def test_0090_import_sale_order_with_bundle_product_check_duplicate(self):
@@ -881,7 +881,9 @@ class TestSale(TestBase):
                     'VGN-TXN27N-BW'
                 )
                 self.assertEqual(len(product.boms), 1)
-                self.assertEqual(len(product.boms[0].bom.inputs), 2)
+
+                # virtual product is ignored
+                self.assertEqual(len(product.boms[0].bom.inputs), 1)
 
     def test_0100_import_sale_with_bundle_plus_child_separate(self):
         """
