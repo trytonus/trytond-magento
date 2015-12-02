@@ -267,7 +267,7 @@ class ProductSaleChannelListing:
             ('channel.source', '!=', 'magento'),
         ])
         if non_magento_listings:
-            return super(ProductSaleChannelListing, cls).export_bulk_inventory(
+            super(ProductSaleChannelListing, cls).export_bulk_inventory(
                 non_magento_listings
             )
         magento_listings = filter(
