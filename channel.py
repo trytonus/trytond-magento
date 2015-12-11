@@ -280,7 +280,7 @@ class Channel:
 
         return products
 
-    def import_product(self, sku):
+    def import_product(self, sku, product_data=None):
         """
         Import specific product for this magento channel
 
@@ -290,7 +290,7 @@ class Channel:
         Listing = Pool().get('product.product.channel_listing')
 
         if self.source != 'magento':
-            return super(Channel, self).import_product(sku)
+            return super(Channel, self).import_product(sku, product_data)
 
         # Sanitize SKU
         sku = sku.strip()
