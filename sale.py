@@ -444,8 +444,8 @@ class Sale:
             'unit': self.channel.default_uom.id,
             'note': ' - '.join([
                     'Magento Shipping',
-                    order_data['shipping_method'],
-                    order_data['shipping_description']
+                    order_data['shipping_method'] or "",
+                    order_data['shipping_description'] or ""
             ]),
             'quantity': 1,
         })
