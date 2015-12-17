@@ -292,6 +292,10 @@ class Channel:
         if self.source != 'magento':
             return super(Channel, self).import_product(sku, product_data)
 
+        if not sku:
+            # SKU is required can not continue
+            return
+
         # Sanitize SKU
         sku = sku.strip()
 
@@ -310,7 +314,7 @@ class Channel:
                 self.magento_url, self.magento_api_user,
                 self.magento_api_key
             ) as product_api:
-                product_data = product_api.info(sku, identifierType="SKU")
+                product_data = product_api.info(sku, identifierType="sku")
 
                 # XXX: sanitize product_data, sometimes product sku may
                 # contain trailing spaces
