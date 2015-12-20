@@ -259,6 +259,7 @@ class TestBase(unittest.TestCase):
                 'source': 'magento',
                 'create_users': [('add', [USER])],
                 'warehouse': self.warehouse,
+                'timezone': 'US/Eastern',
                 'payment_term': self.payment_term,
                 'company': self.company.id,
                 'magento_url': 'some test url 1',

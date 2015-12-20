@@ -52,6 +52,7 @@ module_name = 'magento'
 
 requires = [
     'magento',
+    'pytz',
 ]
 MODULE2PREFIX = {
     'sale_channel': 'fio',

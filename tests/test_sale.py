@@ -5,6 +5,7 @@ from decimal import Decimal
 
 import unittest
 from datetime import datetime
+import pytz
 from dateutil.relativedelta import relativedelta
 
 import magento
@@ -1397,6 +1398,55 @@ class TestSale(TestBase):
                 self.assertEqual(payment.amount, order.total_amount)
                 self.assertEqual(payment.amount_available, Decimal('0'))
                 self.assertEqual(len(payment.payment_transactions), 1)
+
+    def test_140_check_date_conversion_est_to_utc(self):
+        """
+        Tests conversion of date in case user selects a timezone
+        field.
+        """
+        Sale = POOL.get('sale.sale')
+        Category = POOL.get('product.category')
+
+        with Transaction().start(DB_NAME, USER, CONTEXT):
+            self.setup_defaults()
+            self.import_order_states(self.channel1)
+
+            with Transaction().set_context({
+                'current_channel': self.channel1.id,
+            }):
+
+                category_tree = load_json('categories', 'category_tree')
+                Category.create_tree_using_magento_data(category_tree)
+
+                order_data = load_json('orders', '100000002')
+
+                with patch(
+                        'magento.Customer', mock_customer_api(), create=True):
+                    self.Party.find_or_create_using_magento_id(
+                        order_data['customer_id']
+                    )
+
+                with Transaction().set_context(company=self.company):
+                    # Create sale order using magento data
+                    with patch(
+                            'magento.Product', mock_product_api(), create=True):
+                        m_sale = Sale.find_or_create_using_magento_data(
+                            order_data
+                        )
+
+                self.assertEqual(
+                    self.channel1.timezone, 'US/Eastern')
+
+                timezone = pytz.timezone(self.channel1.timezone)
+                sale_time = datetime.strptime(
+                    order_data['created_at'], '%Y-%m-%d %H:%M:%S'
+                )
+                sale_time = timezone.localize(sale_time)
+                utc_sale_time = sale_time.astimezone(pytz.utc).date()
+
+                self.assertEqual(
+                    m_sale.sale_date, utc_sale_time
+                )
 
 
 def suite():
