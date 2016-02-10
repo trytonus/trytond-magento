@@ -2,6 +2,8 @@
 import magento
 from decimal import Decimal
 import xmlrpclib
+from datetime import datetime
+import pytz
 
 from trytond.model import fields
 from trytond.transaction import Transaction
@@ -150,10 +152,17 @@ class Sale:
         else:
             shipment_method = tryton_action['shipment_method']
 
+        timezone = pytz.timezone(channel.timezone)
+        sale_time = datetime.strptime(
+            order_data['created_at'], '%Y-%m-%d %H:%M:%S'
+        )
+        sale_time = timezone.localize(sale_time)
+        utc_sale_time = sale_time.astimezone(pytz.utc)
+
         return Sale(**{
             'reference': channel.magento_order_prefix +
                 order_data['increment_id'],
-            'sale_date': order_data['created_at'].split()[0],
+            'sale_date': utc_sale_time.date(),
             'party': party.id,
             'currency': currency.id,
             'invoice_address': party_invoice_address,
