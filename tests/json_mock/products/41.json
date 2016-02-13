@@ -1,0 +1,72 @@
+{
+    "apparel_type":"41",
+    "categories":[
+
+    ],
+    "category_ids":[
+
+    ],
+    "color":"16",
+    "country_of_manufacture":null,
+    "created_at":"2014-11-22T10:54:39-08:00",
+    "custom_design":null,
+    "custom_design_from":null,
+    "custom_design_to":null,
+    "custom_layout_update":null,
+    "description":"Available in Sharp fit. Refined collar. Button cuff. Cotton. Machine wash. Made in US.",
+    "fit":"51",
+    "gender":"93",
+    "gift_message_available":null,
+    "gift_wrapping_available":"0",
+    "gift_wrapping_price":null,
+    "group_price":[
+
+    ],
+    "has_options":"0",
+    "image_label":null,
+    "is_recurring":"0",
+    "length":null,
+    "meta_description":null,
+    "meta_keyword":null,
+    "meta_title":null,
+    "minimal_price":null,
+    "msrp":null,
+    "msrp_display_actual_price_type":"4",
+    "msrp_enabled":"2",
+    "name":"Plaid Cotton Shirt-Royal Blue-L",
+    "news_from_date":null,
+    "news_to_date":null,
+    "occasion":"31",
+    "old_id":null,
+    "options_container":"container1",
+    "page_layout":"one_column",
+    "price":"160.0000",
+    "product_id":"905",
+    "recurring_profile":null,
+    "required_options":"0",
+    "set":"13",
+    "short_description":"This everyday shirt is equally stylish with jeans or trousers.",
+    "size":"78",
+    "sku":"msj006c-Royal Blue-L",
+    "sleeve_length":"47",
+    "small_image_label":null,
+    "special_from_date":null,
+    "special_price":null,
+    "special_to_date":null,
+    "status":"1",
+    "tax_class_id":"2",
+    "thumbnail_label":null,
+    "tier_price":[
+
+    ],
+    "type":"simple",
+    "type_id":"simple",
+    "updated_at":"2016-01-09 16:10:41",
+    "url_key":"plaid-cotton-shirt-royal-blue-l",
+    "url_path":"plaid-cotton-shirt-royal-blue-l.html",
+    "visibility":"1",
+    "websites":[
+        "1"
+    ],
+    "weight":"1.0000"
+}

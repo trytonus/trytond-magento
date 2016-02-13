@@ -386,15 +386,31 @@ class TestProduct(TestBase):
 
                 Category.create_using_magento_data(category_data)
 
-                product_data = load_json('products', '135')
-                Product.find_or_create_using_magento_data(
+                # case 1: Product is valid
+                product_data = load_json('products', '41')
+                product = Product.find_or_create_using_magento_data(
                     product_data
                 )
 
-                with patch(
-                    'magento.Inventory', mock_inventory_api(), create=True
-                ):
-                    self.channel1.export_inventory()
+                self.assertEqual(len(product.channel_listings), 1)
+
+                listing = product.channel_listings[0]
+
+                listing.export_inventory()
+                self.assertEqual(listing.state, 'active')
+
+                # case 2: Use another Product that does not exist
+                product_data = load_json('products', '135')
+                product = Product.find_or_create_using_magento_data(
+                    product_data
+                )
+
+                self.assertEqual(len(product.channel_listings), 1)
+
+                listing = product.channel_listings[0]
+
+                listing.export_inventory()
+                self.assertEqual(listing.state, 'disabled')
 
     def test_0090_tier_prices(self):
         """Checks the function field on product price tiers
