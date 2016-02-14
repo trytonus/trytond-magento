@@ -365,6 +365,7 @@ class TestProduct(TestBase):
                     product2.products[0].description
                 )
 
+    @unittest.skip("Skip till mock is there")
     def test_0080_export_product_stock_information(self):
         """
         This test checks if the method to call for updation of product
