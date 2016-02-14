@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 import magento
 import logging
 import xmlrpclib
@@ -361,9 +363,13 @@ class Channel:
 
         :return: List of active record of sale imported
         """
+        Date = Pool().get('ir.date')
+
         if self.source != 'magento':
             return super(Channel, self).import_orders()
 
+        # Last one month order
+        updated_at_min = Date.today() - relativedelta(days=30)
         new_sales = []
         with Transaction().set_context({'current_channel': self.id}):
             order_states = self.get_order_states_to_import()
@@ -380,6 +386,7 @@ class Channel:
                 filter = {
                     'store_id': {'=': self.magento_store_id},
                     'state': {'in': order_states_to_import_in},
+                    'updated_at': {'gteq': updated_at_min.isoformat(' ')},
                 }
                 self.write([self], {
                     'last_order_import_time': datetime.utcnow()
