@@ -597,8 +597,7 @@ class TestSale(TestBase):
                 self.channel1.save()
 
                 self.assertTrue(
-                    self.channel1.last_order_export_time
-                    > order.write_date
+                    self.channel1.last_order_export_time > order.write_date
                 )
 
                 with patch('magento.Order', mock_order_api(), create=True):
@@ -755,8 +754,7 @@ class TestSale(TestBase):
                 })
 
                 self.assertTrue(
-                    self.channel1.last_order_export_time
-                    < order.write_date
+                    self.channel1.last_order_export_time < order.write_date
                 )
 
                 with patch('magento.Order', mock_order_api(), create=True):

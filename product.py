@@ -213,6 +213,14 @@ class ProductSaleChannelListing:
     )
 
     @classmethod
+    def __setup__(cls):
+        super(ProductSaleChannelListing, cls).__setup__()
+        cls._error_messages.update({
+            'multi_inventory_update_fail':
+            "FaultCode: %s, FaultMessage: %s",
+        })
+
+    @classmethod
     def create_from(cls, channel, product_data):
         """
         Create a listing for the product from channel and data
@@ -258,6 +266,11 @@ class ProductSaleChannelListing:
 
         Do not rely on the return value from this method.
         """
+        Channel = Pool().get('sale.channel')
+        SaleChannelListing = Pool().get('product.product.channel_listing')
+
+        channel = Channel.get_current_magento_channel()
+
         if not listings:
             # Nothing to update
             return
@@ -305,13 +318,21 @@ class ProductSaleChannelListing:
                     response = inventory_api.update_multi(product_data_batch)
                     # Magento bulk API will not raise Faults.
                     # Instead the response contains the faults as a dict
-                    for result in response:
+                    for i, result in enumerate(response):
                         if result is not True:
-                            # TODO: True when success, dictionary of fault
-                            # when the product is not there
-                            # 1. Find product and listing
-                            # 2. Disable the listing
-                            pass
+                            if result.get('isFault') is True and \
+                                    result['faultCode'] == '101':
+                                listing, = SaleChannelListing.search([
+                                    ('product_identifier', '=', product_data_batch[i][0]),  # noqa
+                                    ('channel', '=', channel.id),
+                                ])
+                                listing.state = 'disabled'
+                                listing.save()
+                            else:
+                                cls.raise_user_error(
+                                    'multi_inventory_update_fail',
+                                    (result['faultCode'], result['faultMessage'])  # noqa
+                                )
 
 
 class Product:
