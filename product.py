@@ -269,8 +269,6 @@ class ProductSaleChannelListing:
         Channel = Pool().get('sale.channel')
         SaleChannelListing = Pool().get('product.product.channel_listing')
 
-        channel = Channel.get_current_magento_channel()
-
         if not listings:
             # Nothing to update
             return
