@@ -266,7 +266,6 @@ class ProductSaleChannelListing:
 
         Do not rely on the return value from this method.
         """
-        Channel = Pool().get('sale.channel')
         SaleChannelListing = Pool().get('product.product.channel_listing')
 
         if not listings:
