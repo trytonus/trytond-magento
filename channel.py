@@ -363,13 +363,11 @@ class Channel:
 
         :return: List of active record of sale imported
         """
-        Date = Pool().get('ir.date')
-
         if self.source != 'magento':
             return super(Channel, self).import_orders()
 
         # Last one month order
-        updated_at_min = Date.today() - relativedelta(days=30)
+        updated_at_min = datetime.now() - relativedelta(days=30)
         new_sales = []
         with Transaction().set_context({'current_channel': self.id}):
             order_states = self.get_order_states_to_import()
