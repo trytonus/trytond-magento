@@ -2,6 +2,7 @@
 import magento
 from collections import defaultdict
 
+import logbook
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.transaction import Transaction
 from trytond.pool import PoolMeta, Pool
@@ -15,6 +16,8 @@ __all__ = [
     'ProductPriceTier',
 ]
 __metaclass__ = PoolMeta
+
+log = logbook.Logger('magento', logbook.INFO)
 
 
 def batch(iterable, n=1):
@@ -284,6 +287,11 @@ class ProductSaleChannelListing:
             lambda l: l not in non_magento_listings, listings
         )
 
+        log.info(
+            "Fetching inventory of %d magento listings"
+            % len(magento_listings)
+        )
+
         inventory_channel_map = defaultdict(list)
         for listing in magento_listings:
             channel = listing.channel
@@ -312,6 +320,10 @@ class ProductSaleChannelListing:
                     channel.magento_api_user,
                     channel.magento_api_key) as inventory_api:
                 for product_data_batch in batch(product_data_list, 50):
+                    log.info(
+                        "Pushing inventory of %d products to magento"
+                        % len(product_data_batch)
+                    )
                     response = inventory_api.update_multi(product_data_batch)
                     # Magento bulk API will not raise Faults.
                     # Instead the response contains the faults as a dict
