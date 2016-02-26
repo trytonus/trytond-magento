@@ -461,55 +461,6 @@ class TestProduct(TestBase):
                     listing.product.list_price * Decimal('0.9'), tier.price
                 )
 
-    def test_0110_export_catalog(self):
-        """
-        Check the export of product catalog to magento.
-        This method does not check the API calls.
-        """
-        ProductTemplate = POOL.get('product.template')
-        Uom = POOL.get('product.uom')
-
-        with Transaction().start(DB_NAME, USER, CONTEXT) as txn:
-            self.setup_defaults()
-
-            with txn.set_context({
-                'current_channel': self.channel1.id,
-                'magento_attribute_set': 1,
-                'company': self.company.id,
-            }):
-                uom, = Uom.search([('name', '=', 'Unit')], limit=1)
-                product_template, = ProductTemplate.create([
-                    {
-                        'name': 'Test product',
-                        'account_expense': self.get_account_by_kind('expense'),
-                        'account_revenue': self.get_account_by_kind('revenue'),
-                        'default_uom': uom.id,
-                        'sale_uom': uom.id,
-                        'products': [('create', [{
-                            'code': 'code',
-                            'list_price': Decimal('100'),
-                            'cost_price': Decimal('1'),
-                            'description': 'This is a product description',
-                        }])]
-                    }]
-                )
-
-                self.channel1.last_product_export_time = \
-                    datetime.utcnow() - relativedelta(days=2)
-
-                product_template.products[0].name = "Test Product Edit"
-                product_template.products[0].save()
-
-                with patch(
-                    'magento.Product', mock_product_api(), create=True
-                ):
-                    self.channel1.export_product_catalog()
-
-                self.assertEqual(
-                    self.channel1.last_product_export_time.date(),
-                    date.today()
-                )
-
 
 def suite():
     """Test Suite"""

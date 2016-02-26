@@ -555,67 +555,6 @@ class Product:
             'tax_class_id': '1',    # FIXME
         }
 
-    def export_product_catalog_to_magento(self, category):
-        """Export the current product to the magento category corresponding to
-        the given `category` under the current magento_channel in context
-
-        :param category: Active record of category to which the product has
-                         to be exported
-        :return: Active record of product
-        """
-        Channel = Pool().get('sale.channel')
-        SaleChannelListing = Pool().get('product.product.channel_listing')
-
-        channel = Channel.get_current_magento_channel()
-
-        if not category.magento_ids:
-            self.raise_user_error(
-                'invalid_category', (category.complete_name,)
-            )
-
-        listing = SaleChannelListing.search([
-            ('channel', '=', channel.id),
-            ('product', '=', self.id),
-        ])
-
-        if listing:
-            self.raise_user_error(
-                'invalid_product', (self.name,)
-            )
-
-        if not self.products[0].code:
-            self.raise_user_error(
-                'missing_product_code', (self.name,)
-            )
-
-        with magento.Product(
-            channel.magento_url, channel.magento_api_user,
-            channel.magento_api_key
-        ) as product_api:
-            # We create only simple products on magento with the default
-            # attribute set
-            # TODO: We have to call the method from core API extension
-            # because the method for catalog create from core API does not seem
-            # to work. This should ideally be from core API rather than
-            # extension
-            magento_id = product_api.call(
-                'ol_catalog_product.create', [
-                    'simple',
-                    int(Transaction().context['magento_attribute_set']),
-                    self.products[0].code,
-                    self.get_product_values_for_export_to_magento(
-                        [category], [channel]
-                    )
-                ]
-            )
-            SaleChannelListing.create([{
-                'product_identifier': str(magento_id),
-                'channel': channel.id,
-                'product': self.id,
-                'magento_product_type': 'simple',
-            }])
-        return self
-
 
 class ProductPriceTier(ModelSQL, ModelView):
     """Price Tiers for product
