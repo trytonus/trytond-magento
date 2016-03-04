@@ -59,6 +59,7 @@ class TestBase(unittest.TestCase):
         Setup default data
         """
         self.Channel = POOL.get('sale.channel')
+        self.SaleChannelCarrier = POOL.get('sale.channel.carrier')
         self.Uom = POOL.get('product.uom')
         self.Currency = POOL.get('currency.currency')
         self.Company = POOL.get('company.company')
@@ -293,6 +294,12 @@ class TestBase(unittest.TestCase):
                 'magento_store_name': 'Store1',
                 'magento_store_id': 1,
             }])
+
+        self.SaleChannelCarrier.create([{
+            'name': 'Flat Rate',
+            'code': 'flatrate',
+            'channel': self.channel1.id,
+        }])
 
         sale_config = self.SaleConfiguration(1)
         sale_config.payment_authorize_on = "manual"

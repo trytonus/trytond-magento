@@ -3,9 +3,8 @@ from trytond.pool import Pool
 from wizard import (
     TestMagentoConnectionStart, ImportWebsitesStart,
     ExportMagentoShipmentStatusStart,
-    ExportMagentoShipmentStatus, ImportMagentoCarriersStart,
-    ImportMagentoCarriers, ConfigureMagento, ImportStoresStart, FailureStart,
-    UpdateMagentoCatalogStart, UpdateMagentoCatalog,
+    ExportMagentoShipmentStatus, ConfigureMagento, ImportStoresStart,
+    FailureStart, UpdateMagentoCatalogStart, UpdateMagentoCatalog,
     SuccessStart, ExportDataWizardConfigure, ExportDataWizard,
 )
 from channel import Channel, MagentoTier
@@ -16,7 +15,7 @@ from product import (
 )
 from country import Country, Subdivision
 from currency import Currency
-from carrier import MagentoInstanceCarrier
+from carrier import SaleChannelCarrier
 from sale import (
     Sale, StockShipmentOut, SaleLine
 )
@@ -32,7 +31,6 @@ def register():
     Pool.register(
         Channel,
         MagentoTier,
-        MagentoInstanceCarrier,
         TestMagentoConnectionStart,
         ImportStoresStart,
         FailureStart,
@@ -53,7 +51,7 @@ def register():
         Address,
         Currency,
         Sale,
-        ImportMagentoCarriersStart,
+        SaleChannelCarrier,
         SaleLine,
         BOM,
         MagentoTax,
@@ -66,7 +64,6 @@ def register():
     Pool.register(
         ExportMagentoShipmentStatus,
         ExportDataWizard,
-        ImportMagentoCarriers,
         ConfigureMagento,
         UpdateMagentoCatalog,
         module='magento', type_='wizard'
