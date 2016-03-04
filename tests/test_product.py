@@ -2,8 +2,6 @@
 import sys
 import os
 from decimal import Decimal
-from datetime import datetime, date
-from dateutil.relativedelta import relativedelta
 
 import unittest
 import magento
