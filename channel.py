@@ -467,46 +467,6 @@ class Channel:
 
         return exported_sales
 
-    def export_product_catalog(self):
-        """
-        Export the current product to the magento category corresponding to
-        the given `category` under the current magento channel
-
-        :return: Active record of product
-        """
-        Channel = Pool().get('sale.channel')
-        Product = Pool().get('product.product')
-        ModelData = Pool().get('ir.model.data')
-        Category = Pool().get('product.category')
-
-        if self.source != 'magento':
-            return super(Channel, self).export_product_catalog()
-
-        domain = [
-            ('code', '!=', None),
-        ]
-
-        if self.last_product_export_time:
-            domain.append(
-                ('write_date', '>=', self.last_product_export_time)
-            )
-
-        products = Product.search(domain)
-
-        self.last_product_export_time = datetime.utcnow()
-        self.save()
-
-        exported_products = []
-
-        category = Category(
-            ModelData.get_id("magento", "product_category_magento_unclassified")
-        )
-        for product in products:
-            exported_products.append(
-                product.export_product_catalog_to_magento(category)
-            )
-        return exported_products
-
     @classmethod
     def export_shipment_status_to_magento_using_cron(cls):
         """
