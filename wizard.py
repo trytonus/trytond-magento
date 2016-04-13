@@ -13,53 +13,11 @@ from trytond.wizard import (
 
 __all__ = [
     'ExportMagentoShipmentStatusStart',
-    'ExportMagentoShipmentStatus', 'ImportMagentoCarriersStart',
-    'ImportMagentoCarriers', 'ConfigureMagento',
+    'ExportMagentoShipmentStatus', 'ConfigureMagento',
     'TestMagentoConnectionStart', 'ImportWebsitesStart',
     'ImportStoresStart', 'FailureStart', 'SuccessStart',
 ]
 __metaclass__ = PoolMeta
-
-
-class ImportMagentoCarriersStart(ModelView):
-    "Import Carriers Start"
-    __name__ = 'magento.wizard_import_carriers.start'
-
-    message = fields.Text("Message", readonly=True)
-
-
-class ImportMagentoCarriers(Wizard):
-    """
-    Wizard to import carriers / shipping methods for channel
-    """
-    __name__ = 'magento.wizard_import_carriers'
-
-    start = StateView(
-        'magento.wizard_import_carriers.start',
-        'magento.wizard_import_magento_carriers_start_view_form',
-        [
-            Button('Ok', 'end', 'tryton-ok'),
-        ]
-    )
-
-    def default_start(self, data):
-        """
-        Import carriers and show the user appropriate message
-
-        :param data: Wizard data
-        """
-        Channel = Pool().get('sale.channel')
-
-        channel = Channel(Transaction().context.get('active_id'))
-        channel.validate_magento_channel()
-        return {
-            'message':
-                "This wizard has imported all the carriers / " +
-                "shipping methods for this magento channel. You should now " +
-                "configure the imported carriers / shipping methods to " +
-                "match the shipment carriers in Tryton to allow seamless " +
-                "synchronisation of tracking information."
-        }
 
 
 class ExportMagentoShipmentStatusStart(ModelView):

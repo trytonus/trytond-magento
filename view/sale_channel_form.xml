@@ -35,12 +35,6 @@
         </group>
     </xpath>
     <xpath expr="/form/notebook/page[@id='configuration']/notebook/page[@id='taxes']" position="after">
-        <page string="Carrier / Shipping Methods" id="carriers">
-            <field name="magento_carriers" colspan="4"/>
-            <group id="magento_buttons" col="3" colspan="6">
-                <button string="Import Magento Carriers" name="import_magento_carriers"/>
-            </group>
-        </page>
         <page string="Payment Gateways" id="payments" states="{'invisible': Not(Eval('source') == 'magento')}">
             <field name="magento_payment_gateways" colspan="4"/>
         </page>

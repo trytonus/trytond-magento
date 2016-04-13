@@ -436,17 +436,18 @@ class Sale:
 
         :param order_data: Order Data from magento
         """
-        MagentoCarrier = Pool().get('magento.instance.carrier')
         SaleLine = Pool().get('sale.line')
+        Channel = Pool().get('sale.channel')
 
+        channel = Channel.get_current_magento_channel()
         carrier_data = self.get_carrier_data_from_order_data(order_data)
 
-        magento_carrier = MagentoCarrier.find_using_magento_data(carrier_data)
+        magento_carrier = channel.get_shipping_carrier(carrier_data['code'])
 
-        if magento_carrier and magento_carrier.carrier:
+        if magento_carrier:
             # Save shipping carrier in sale
-            self.carrier = magento_carrier.carrier
-            product = magento_carrier.carrier.carrier_product
+            self.carrier = magento_carrier
+            product = magento_carrier.carrier_product
         else:
             product = None
 
@@ -601,7 +602,7 @@ class StockShipmentOut:
         :param shipment: Browse record of shipment
         :return: Shipment increment ID
         """
-        MagentoCarrier = Pool().get('magento.instance.carrier')
+        SaleChannelCarrier = Pool().get('sale.channel.carrier')
         Channel = Pool().get('sale.channel')
         Shipment = Pool().get('stock.shipment.out')
 
@@ -611,7 +612,7 @@ class StockShipmentOut:
         assert self.carrier
 
         try:
-            carrier, = MagentoCarrier.search([
+            carrier, = SaleChannelCarrier.search([
                 ('channel', '=', channel.id),
                 ('carrier', '=', self.carrier.id)
             ])

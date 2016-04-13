@@ -20,18 +20,6 @@
             <field name="name">price_tier_tree</field>
         </record>
 
-        <!--Carriers-->
-        <record model="ir.ui.view" id="carrier_view_form">
-            <field name="model">magento.instance.carrier</field>
-            <field name="type">form</field>
-            <field name="name">magento_carrier_form</field>
-        </record>
-        <record model="ir.ui.view" id="carrier_view_tree">
-            <field name="model">magento.instance.carrier</field>
-            <field name="type">tree</field>
-            <field name="name">magento_carrier_tree</field>
-        </record>
-
         <record model="res.user" id="user_magento">
             <field name="login">user_cron_magento</field>
             <field name="name">User Cron Magento</field>
