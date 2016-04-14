@@ -42,7 +42,4 @@
             <field name="magento_price_tiers" colspan="8"/>
         </page>
     </xpath>
-    <xpath expr="/form/notebook/page[@id='configuration']/notebook/page[@id='taxes']" position="inside">
-        <field name="magento_taxes" colspan="8"/>
-    </xpath>
 </data>
