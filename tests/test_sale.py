@@ -101,6 +101,7 @@ class TestSale(TestBase):
     """
     Tests import of sale order
     """
+
     def import_order_states(self, channel):
         """
         Import Order States
@@ -154,18 +155,18 @@ class TestSale(TestBase):
             self.assertEqual(
                 self.channel1.get_default_tryton_action('new', 'new'),
                 {
-                     'action': 'process_manually',
-                     'invoice_method': 'order',
-                     'shipment_method': 'order'
+                    'action': 'process_manually',
+                    'invoice_method': 'order',
+                    'shipment_method': 'order'
                 }
             )
 
             self.assertEqual(
                 self.channel1.get_default_tryton_action('holded', 'holded'),
                 {
-                     'action': 'process_manually',
-                     'invoice_method': 'order',
-                     'shipment_method': 'order'
+                    'action': 'process_manually',
+                    'invoice_method': 'order',
+                    'shipment_method': 'order'
                 }
             )
 
@@ -233,26 +234,28 @@ class TestSale(TestBase):
         """
         Test If all carriers are being imported from magento
         """
-        MagentoCarrier = POOL.get('magento.instance.carrier')
+        SaleChannelCarrier = POOL.get('sale.channel.carrier')
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.setup_defaults()
 
-            carriers_before_import = MagentoCarrier.search([])
+            carriers_before_import = SaleChannelCarrier.search([])
             with Transaction().set_context({
                     'current_channel': self.channel1.id
             }):
-                carriers = MagentoCarrier.create_all_using_magento_data(
-                    load_json('carriers', 'shipping_methods')
-                )
-                carriers_after_import = MagentoCarrier.search([])
+                carriers = []
+                carriers_data = load_json('carriers', 'shipping_methods')
+                for data in carriers_data:
+                    carriers.append({
+                        'name': data['label'],
+                        'code': data['code'],
+                        'channel': self.channel1.id,
+                    })
+                SaleChannelCarrier.create(carriers)
+
+                carriers_after_import = SaleChannelCarrier.search([])
 
                 self.assertTrue(carriers_after_import > carriers_before_import)
-                for carrier in carriers:
-                    self.assertEqual(
-                        carrier.channel.id,
-                        Transaction().context['current_channel']
-                    )
 
     def test_0030_import_sale_order_with_products_with_new(self):
         """
@@ -615,7 +618,7 @@ class TestSale(TestBase):
         Category = POOL.get('product.category')
         Carrier = POOL.get('carrier')
         ProductTemplate = POOL.get('product.template')
-        MagentoCarrier = POOL.get('magento.instance.carrier')
+        SaleChannelCarrier = POOL.get('sale.channel.carrier')
         Shipment = POOL.get('stock.shipment.out')
         Uom = POOL.get('product.uom')
 
@@ -652,9 +655,15 @@ class TestSale(TestBase):
                             order_data
                         )
 
-                mag_carriers = MagentoCarrier.create_all_using_magento_data(
-                    load_json('carriers', 'shipping_methods')
-                )
+                carriers = []
+                carriers_data = load_json('carriers', 'shipping_methods')
+                for data in carriers_data:
+                    carriers.append({
+                        'name': data['label'],
+                        'code': data['code'],
+                        'channel': self.channel1.id,
+                    })
+                mag_carriers = SaleChannelCarrier.create(carriers)
 
                 uom, = Uom.search([('name', '=', 'Unit')], limit=1)
                 product, = ProductTemplate.create([
@@ -679,7 +688,7 @@ class TestSale(TestBase):
                     'party': party.id,
                     'carrier_product': product.products[0].id,
                 }])
-                MagentoCarrier.write([mag_carriers[0]], {
+                SaleChannelCarrier.write([mag_carriers[0]], {
                     'carrier': carrier.id,
                 })
 

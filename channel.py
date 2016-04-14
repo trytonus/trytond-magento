@@ -50,10 +50,6 @@ class Channel:
     magento_api_key = fields.Char(
         "API Key", states=MAGENTO_STATES, depends=['source']
     )
-    magento_carriers = fields.One2Many(
-        "magento.instance.carrier", "channel", "Carriers / Shipping Methods",
-        states=INVISIBLE_IF_NOT_MAGENTO, depends=['source']
-    )
     magento_order_prefix = fields.Char(
         'Sale Order Prefix',
         help="This helps to distinguish between orders from different channels",
@@ -226,27 +222,6 @@ class Channel:
             self.raise_user_error("connection_error")
 
     @classmethod
-    @ModelView.button_action('magento.wizard_import_magento_carriers')
-    def import_magento_carriers(cls, channels):
-        """
-        Import carriers/shipping methods from magento for channels
-
-        :param channels: Active record list of magento channels
-        """
-        InstanceCarrier = Pool().get('magento.instance.carrier')
-
-        for channel in channels:
-            channel.validate_magento_channel()
-            with Transaction().set_context({'current_channel': channel.id}):
-                with OrderConfig(
-                    channel.magento_url, channel.magento_api_user,
-                    channel.magento_api_key
-                ) as order_config_api:
-                    mag_carriers = order_config_api.get_shipping_methods()
-
-                InstanceCarrier.create_all_using_magento_data(mag_carriers)
-
-    @classmethod
     def get_current_magento_channel(cls):
         """Helper method to get the current magento_channel.
         """
@@ -256,6 +231,44 @@ class Channel:
         channel.validate_magento_channel()
 
         return channel
+
+    @classmethod
+    def import_shipping_carriers(cls, channels):
+        """
+        Create shipping carriers by importing data from Magento.
+
+        :param channels: Active record list of magento channels
+        """
+        SaleChannelCarrier = Pool().get('sale.channel.carrier')
+
+        for channel in channels:
+            assert channel.source == 'magento'
+
+            with Transaction().set_context({'current_channel': channel.id}):
+                with OrderConfig(
+                    channel.magento_url, channel.magento_api_user,
+                    channel.magento_api_key
+                ) as order_config_api:
+                    carriers_data = order_config_api.get_shipping_methods()
+
+            carriers = []
+            for data in carriers_data:
+                carrier = SaleChannelCarrier.search([
+                    ('code', '=', data['code']),
+                    ('channel', '=', channel.id),
+                ])
+                if carrier:
+                    continue
+
+                carrier = {
+                    'name': data['label'],
+                    'code': data['code'],
+                    'channel': channel,
+                }
+                if carrier not in carriers:
+                    carriers.append(carrier)
+
+            SaleChannelCarrier.create(carriers)
 
     def import_products(self):
         """

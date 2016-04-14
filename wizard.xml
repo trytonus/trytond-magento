@@ -47,18 +47,6 @@
             <field name="name">wizard_configuration_failure_start_form</field>
           </record>
 
-        <!--Import Carriers Wizard-->
-        <record model="ir.action.wizard" id="wizard_import_magento_carriers">
-            <field name="name">Import Magento Carriers</field>
-            <field name="wiz_name">magento.wizard_import_carriers</field>
-            <field name="model">sale.channel</field>
-        </record>
-        <record model="ir.ui.view" id="wizard_import_magento_carriers_start_view_form">
-            <field name="model">magento.wizard_import_carriers.start</field>
-            <field name="type">form</field>
-            <field name="name">wizard_import_carriers_start_form</field>
-        </record>
-
         <!--Export Shipment Status Wizard-->
         <record model="ir.action.wizard" id="wizard_export_magento_shipment_status">
             <field name="name">Export Shipment Status To Magento</field>
