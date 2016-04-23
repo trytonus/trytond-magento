@@ -296,7 +296,7 @@ class Sale:
                 self.get_shipping_line_data_using_magento_data(order_data)
             )
 
-        if Decimal(order_data.get('discount_amount')):
+        if Decimal(order_data.get('discount_amount') or '0'):
             self.lines.append(
                 self.get_discount_line_data_using_magento_data(order_data)
             )
@@ -485,7 +485,7 @@ class Sale:
             'sale': self.id,
             'description': order_data['discount_description'] or
                 'Magento Discount',
-            'unit_price': Decimal(order_data.get('discount_amount', 0.00)),
+            'unit_price': Decimal(order_data.get('discount_amount') or '0'),
             'unit': self.channel.default_uom.id,
             'note': order_data['discount_description'],
             'quantity': 1,
