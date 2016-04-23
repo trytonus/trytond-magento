@@ -277,7 +277,8 @@ class Sale:
 
             # If the product is a child product of a bundle product, do not
             # create a separate line for this.
-            if 'bundle_option' in item['product_options'] and \
+            if item['product_options'] and \
+                    'bundle_option' in item['product_options'] and \
                     item['parent_item_id']:
                 continue
 
