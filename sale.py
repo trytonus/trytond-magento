@@ -277,8 +277,8 @@ class Sale:
 
             # If the product is a child product of a bundle product, do not
             # create a separate line for this.
-            if 'bundle_option' in item.get('product_options', {}) and \
-                    item.get('parent_item_id'):
+            if 'bundle_option' in item['product_options'] and \
+                    item['parent_item_id']:
                 continue
 
             sale_line = self.get_sale_line_using_magento_data(item)
