@@ -428,7 +428,11 @@ class Sale:
         # Fetch carrier code from shipping_method (Standard magento only)
         # ex: shipping_method : flaterate_flaterate
         #     carrier_code    : flaterate
-        carrier_data['code'], _ = order_data['shipping_method'].split('_', 1)
+        try:
+            carrier_data['code'], _ = \
+                order_data['shipping_method'].split('_', 1)
+        except ValueError:
+            carrier_data['code'] = order_data['shipping_method']
         return carrier_data
 
     def get_shipping_line_data_using_magento_data(self, order_data):
