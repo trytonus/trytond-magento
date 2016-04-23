@@ -458,7 +458,7 @@ class Sale:
             'description': order_data['shipping_description'] or
                     'Magento Shipping',
             'product': product,
-            'unit_price': Decimal(order_data.get('shipping_amount', 0.00)),
+            'unit_price': Decimal(order_data.get('shipping_amount') or '0'),
             'unit': self.channel.default_uom.id,
             'note': ' - '.join([
                     'Magento Shipping',
