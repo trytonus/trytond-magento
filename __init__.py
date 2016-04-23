@@ -20,7 +20,6 @@ from sale import (
     Sale, StockShipmentOut, SaleLine
 )
 from bom import BOM
-from tax import MagentoTax, MagentoTaxRelation
 from payment import MagentoPaymentGateway, Payment
 
 
@@ -54,8 +53,6 @@ def register():
         SaleChannelCarrier,
         SaleLine,
         BOM,
-        MagentoTax,
-        MagentoTaxRelation,
         ProductSaleChannelListing,
         MagentoPaymentGateway,
         Payment,
