@@ -90,10 +90,6 @@ class Channel:
         'reference on magento for the exported shipments as well.',
         states=INVISIBLE_IF_NOT_MAGENTO, depends=['source']
     )
-    magento_taxes = fields.One2Many(
-        "sale.channel.magento.tax", "channel", "Taxes",
-        states=INVISIBLE_IF_NOT_MAGENTO, depends=['source']
-    )
     magento_price_tiers = fields.One2Many(
         'sale.channel.magento.price_tier', 'channel', 'Default Price Tiers',
         states=INVISIBLE_IF_NOT_MAGENTO, depends=['source']
@@ -165,13 +161,6 @@ class Channel:
         root category is 1
         """
         return 1
-
-    def get_taxes(self, rate):
-        "Return list of tax records with the given rate"
-        for mag_tax in self.magento_taxes:
-            if mag_tax.tax_percent == rate:
-                return list(mag_tax.taxes)
-        return []
 
     def import_order_states(self):
         """
