@@ -339,9 +339,10 @@ class Sale:
                 'product': product,
             })
             if item.get('tax_percent') and Decimal(item.get('tax_percent')):
-                taxes = channel.get_taxes(
+                taxes = [channel.get_tax(
+                    None,  # Map this to tax name
                     Decimal(item['tax_percent']) / 100
-                )
+                )]
                 sale_line.taxes = taxes
         return sale_line
 
