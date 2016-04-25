@@ -296,7 +296,7 @@ class Sale:
                 self.get_shipping_line_data_using_magento_data(order_data)
             )
 
-        if Decimal(order_data.get('discount_amount')):
+        if Decimal(order_data.get('discount_amount') or '0'):
             self.lines.append(
                 self.get_discount_line_data_using_magento_data(order_data)
             )
@@ -428,7 +428,11 @@ class Sale:
         # Fetch carrier code from shipping_method (Standard magento only)
         # ex: shipping_method : flaterate_flaterate
         #     carrier_code    : flaterate
-        carrier_data['code'], _ = order_data['shipping_method'].split('_', 1)
+        try:
+            carrier_data['code'], _ = \
+                order_data['shipping_method'].split('_', 1)
+        except ValueError:
+            carrier_data['code'] = order_data['shipping_method']
         return carrier_data
 
     def get_shipping_line_data_using_magento_data(self, order_data):
@@ -458,7 +462,7 @@ class Sale:
             'description': order_data['shipping_description'] or
                     'Magento Shipping',
             'product': product,
-            'unit_price': Decimal(order_data.get('shipping_amount', 0.00)),
+            'unit_price': Decimal(order_data.get('shipping_amount') or '0'),
             'unit': self.channel.default_uom.id,
             'note': ' - '.join([
                     'Magento Shipping',
@@ -481,7 +485,7 @@ class Sale:
             'sale': self.id,
             'description': order_data['discount_description'] or
                 'Magento Discount',
-            'unit_price': Decimal(order_data.get('discount_amount', 0.00)),
+            'unit_price': Decimal(order_data.get('discount_amount') or '0'),
             'unit': self.channel.default_uom.id,
             'note': order_data['discount_description'],
             'quantity': 1,
