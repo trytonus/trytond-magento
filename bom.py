@@ -37,8 +37,8 @@ class BOM:
 
         # Identify and add components
         for item in order_data['items']:
-            if item['product_type'] != 'bundle' and item['product_options'] and \
-                    'bundle_option' in item['product_options'] and \
+            if item['product_type'] != 'bundle' and item['product_options'] \
+                    and 'bundle_option' in item['product_options'] and \
                     item['parent_item_id']:
 
                 bundles[item['parent_item_id']]['components'].append(item)
