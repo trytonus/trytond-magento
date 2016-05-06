@@ -34,7 +34,7 @@
             <field name="magento_order_prefix"/>
         </group>
     </xpath>
-    <xpath expr="/form/notebook/page[@id='configuration']/notebook/page[@id='taxes']" position="after">
+    <xpath expr="/form/notebook/page[@id='configuration']/notebook/page[@id='connection']" position="after">
         <page string="Payment Gateways" id="payments" states="{'invisible': Not(Eval('source') == 'magento')}">
             <field name="magento_payment_gateways" colspan="4"/>
         </page>
