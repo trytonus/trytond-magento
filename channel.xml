@@ -33,19 +33,6 @@
             <field name="group" ref="sale.group_sale_admin"/>
         </record>
 
-        <!--Cron To Export Order Status To Magento-->
-        <record model="ir.cron" id="ir_cron_export_order_status_magento">
-            <field name="name">Export Order Status To Magento</field>
-            <field name="request_user" ref="res.user_admin"/>
-            <field name="user" ref="res.user_trigger"/>
-            <field name="active" eval="True"/>
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="number_calls">-1</field>
-            <field name="model">sale.channel</field>
-            <field name="function">export_order_status_to_magento_using_cron</field>
-        </record>
-
         <!--Cron To Export Shipment Status To Magento-->
         <record model="ir.cron" id="ir_cron_export_shipment_status_magento">
             <field name="name">Export Shipment Status To Magento</field>
