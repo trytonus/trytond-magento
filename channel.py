@@ -426,18 +426,6 @@ class Channel:
                 order_data = order_api.info(order_info['increment_id'])
                 return Sale.create_using_magento_data(order_data)
 
-    @classmethod
-    def export_order_status_to_magento_using_cron(cls):
-        """
-        Export sales orders status to magento using cron
-
-        :param store_views: List of active record of store view
-        """
-        channels = cls.search([('source', '=', 'magento')])
-
-        for channel in channels:
-            channel.export_order_status()
-
     def export_order_status(self):
         """
         Export sale order status to magento for the current store view.
