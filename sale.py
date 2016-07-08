@@ -47,16 +47,7 @@ class Sale:
         cls._error_messages.update({
             'invalid_channel': 'Store view must have same channel as sale '
                 'order',
-            'magento_exception': 'Magento exception in sale %s.'
         })
-
-    @classmethod
-    def confirm(cls, sales):
-        "Validate sale before confirming"
-        for sale in sales:
-            if sale.has_channel_exception:
-                cls.raise_user_error('magento_exception', sale.reference)
-        super(Sale, cls).confirm(sales)
 
     @classmethod
     def find_or_create_using_magento_data(cls, order_data):
