@@ -237,7 +237,7 @@ class ProductSaleChannelListing:
 
         try:
             product, = Product.search([
-                ('code', '=', product_data['sku']),
+                ('code', 'ilike', product_data['sku']),
             ])
         except ValueError:
             cls.raise_user_error("No product found for mapping")
@@ -381,10 +381,10 @@ class Product:
         channel = Channel.get_current_magento_channel()
 
         products = Product.search([
-            ('code', '=', product_data['sku']),
+            ('code', 'ilike', product_data['sku']),
         ])
         listings = Listing.search([
-            ('product.code', '=', product_data['sku']),
+            ('product.code', 'ilike', product_data['sku']),
             ('channel', '=', channel)
         ])
 
