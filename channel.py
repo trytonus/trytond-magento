@@ -304,7 +304,7 @@ class Channel:
         sku = sku.strip()
 
         products = Product.search([
-            ('code', '=', sku),
+            ('code', 'ilike', sku),
         ])
         listings = Listing.search([
             ('product.code', '=', sku),
