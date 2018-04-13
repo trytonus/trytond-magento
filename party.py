@@ -225,8 +225,11 @@ class Address:
                     address_data['region'], country
                 )
 
+        street, streetbis = self.get_street_parts(address_data['street'])
+
         if not all([
-            self.street == (address_data['street'] or None),
+            self.street == (street or None),
+            self.streetbis == (streetbis or None),
             self.zip == (address_data['postcode'] or None),
             self.city == (address_data['city'] or None),
             self.country == country,
@@ -235,6 +238,18 @@ class Address:
             return False
 
         return True
+
+    @classmethod
+    def get_street_parts(cls, magento_street_address):
+        """
+        Magento has only 1 street address column and a line separator
+        puts that into two address lines.
+        """
+        street_parts = magento_street_address.split('\n', 1)
+        if len(street_parts) == 2:
+            return street_parts[0], street_parts[1]
+        else:
+            return magento_street_address, None
 
     @classmethod
     def find_or_create_for_party_using_magento_data(cls, party, address_data):
@@ -282,12 +297,14 @@ class Address:
                     address_data['region'], country
                 )
 
+        street, streetbis = cls.get_street_parts(address_data['street'])
         address, = cls.create([{
             'party': party.id,
             'name': ' '.join(filter(
                 None, [address_data['firstname'], address_data['lastname']]
             )),
-            'street': address_data['street'],
+            'street': street,
+            'streetbis': streetbis,
             'zip': address_data['postcode'],
             'city': address_data['city'],
             'country': country and country.id or None,
